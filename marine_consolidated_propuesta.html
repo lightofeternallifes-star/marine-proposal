@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marine Consolidated Electronics — Propuesta de Transformación Digital</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0d2244;
+    --blue: #1565c0;
+    --blue-light: #1e88e5;
+    --electric: #00b4d8;
+    --red: #cc1111;
+    --red-light: #e53935;
+    --gold: #f4a800;
+    --white: #ffffff;
+    --off-white: #f4f8ff;
+    --gray: #8a9bb5;
+    --border: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0a1628 0%, #0d2244 50%, #0a1628 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(21,101,192,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--electric);
+    border: 1px solid var(--electric);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+
+  .hero-logo-area {
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+
+  .hero-logo-circle {
+    width: 90px; height: 90px;
+    border: 2px solid var(--blue);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    position: relative;
+  }
+
+  .hero-logo-circle::after {
+    content: '⚡';
+    font-size: 36px;
+  }
+
+  .hero-company {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gray);
+    text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 96px);
+    line-height: 0.95;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+
+  .hero h1 span { color: var(--electric); }
+
+  .hero-sub {
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--gray);
+    max-width: 560px;
+    line-height: 1.6;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 1s forwards;
+  }
+
+  .hero-stat { text-align: center; }
+  .hero-stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--electric);
+    line-height: 1;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 80px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--electric);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 60px);
+    line-height: 1;
+    margin-bottom: 40px;
+  }
+
+  .section-title span { color: var(--red-light); }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* PROBLEM SECTION */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .problem-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+
+  .problem-icon { font-size: 28px; margin-bottom: 12px; }
+  .problem-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  .problem-desc { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+  /* SOLUTION CARDS */
+  .solutions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .solution-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .solution-item:last-child { border-bottom: none; }
+
+  .solution-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: rgba(21,101,192,0.3);
+    line-height: 1;
+    padding-top: 4px;
+  }
+
+  .solution-content {}
+  .solution-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--electric);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .solution-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .solution-desc {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  .solution-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(0,180,216,0.1);
+    border: 1px solid rgba(0,180,216,0.25);
+    color: var(--electric);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* URGENTE */
+  .urgente-box {
+    background: rgba(204,17,17,0.08);
+    border: 1px solid rgba(229,57,53,0.3);
+    border-radius: 16px;
+    padding: 32px;
+    margin-top: 40px;
+  }
+
+  .urgente-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--red-light);
+    border: 1px solid var(--red-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .urgente-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .urgente-desc {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  /* PRICING */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .price-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 24px;
+    position: relative;
+  }
+
+  .price-card.featured {
+    background: rgba(21,101,192,0.1);
+    border-color: var(--blue);
+  }
+
+  .price-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gray);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .price-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .price-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: var(--electric);
+    line-height: 1;
+    margin: 16px 0 4px;
+  }
+
+  .price-period {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 24px;
+  }
+
+  .price-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .price-features li {
+    font-size: 13px;
+    color: var(--gray);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .price-features li::before {
+    content: '→';
+    color: var(--electric);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* PROOF */
+  .proof-box {
+    background: rgba(21,101,192,0.08);
+    border: 1px solid rgba(21,101,192,0.2);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+  }
+
+  .proof-quote {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--off-white);
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  .proof-quote strong { color: var(--electric); font-style: normal; font-weight: 600; }
+
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--navy-mid), var(--navy));
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 80px 24px;
+  }
+
+  .cta-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 8vw, 72px);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .cta-sub {
+    font-size: 16px;
+    color: var(--gray);
+    margin-bottom: 40px;
+  }
+
+  .cta-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .cta-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+
+  .cta-contact-icon { font-size: 20px; }
+  .cta-contact-label { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
+  .cta-contact-value { font-weight: 600; }
+
+  .footer-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 2px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .hero-stats { gap: 28px; }
+    section { padding: 56px 20px; }
+    .solution-item { grid-template-columns: 40px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Propuesta Exclusiva · Carriersfy AI Agency</div>
+
+  <div class="hero-logo-area">
+    <div class="hero-logo-circle"></div>
+    <div class="hero-company">Marine Consolidated Electronics</div>
+  </div>
+
+  <h1>Su negocio<br><span>trabajando 24/7</span><br>sin parar nunca más</h1>
+
+  <p class="hero-sub">Un ecosistema completo de tecnología, automatización e inteligencia artificial — diseñado específicamente para llevar Marine Consolidated Electronics al siguiente nivel.</p>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">24/7</div>
+      <div class="hero-stat-label">Sistema activo</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">&lt;30s</div>
+      <div class="hero-stat-label">Respuesta a clientes</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">7</div>
+      <div class="hero-stat-label">Países cubiertos</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">0</div>
+      <div class="hero-stat-label">Leads perdidos</div>
+    </div>
+  </div>
+</div>
+
+<!-- EL PROBLEMA -->
+<section>
+  <div class="section-label">El problema actual</div>
+  <div class="section-title">Por qué se pierden<br><span>deals todos los días</span></div>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">📞</div>
+      <div class="problem-title">Llamadas sin contestar</div>
+      <div class="problem-desc">Cuando usted está en un bote reparando, el teléfono suena y nadie responde. El cliente llama a la competencia.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">💬</div>
+      <div class="problem-title">WhatsApp sin respuesta</div>
+      <div class="problem-desc">En el Caribe y Latinoamérica, si no respondes en 10 minutos, pierdes el trabajo. Así de simple.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📄</div>
+      <div class="problem-title">Tiempo en papeles</div>
+      <div class="problem-desc">Horas haciendo invoices, presupuestos y emails manualmente — tiempo que debería estar generando dinero.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">👻</div>
+      <div class="problem-title">Invisible en internet</div>
+      <div class="problem-desc">Sin página web ni redes sociales, 20 años de experiencia son invisibles para clientes nuevos que buscan en Google.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔧</div>
+      <div class="problem-title">Necesita técnicos urgente</div>
+      <div class="problem-desc">No encuentra mecánicos ni electricistas de botes calificados. El crecimiento está bloqueado por falta de personal.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">📦</div>
+      <div class="problem-title">Partes sin sistema</div>
+      <div class="problem-desc">Vende partes con buen margen pero sin inventario ni tienda online — dinero sobre la mesa sin recoger.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SOLUCIONES -->
+<section>
+  <div class="section-label">Lo que vamos a construir</div>
+  <div class="section-title">El ecosistema<br><span>completo</span></div>
+
+  <div class="solutions-grid">
+
+    <div class="solution-item">
+      <div class="solution-num">01</div>
+      <div class="solution-content">
+        <div class="solution-tag">IA · Voz + WhatsApp</div>
+        <div class="solution-title">Natalie — Agente Virtual 24/7</div>
+        <div class="solution-desc">Natalie contesta cada llamada y cada mensaje de WhatsApp al instante, en español o inglés. Califica el trabajo, captura el lead con toda la información y le avisa a usted con un resumen claro. Ningún cliente queda sin respuesta — nunca más.</div>
+        <div class="solution-pills">
+          <span class="pill">Vapi.ai</span>
+          <span class="pill">N8N</span>
+          <span class="pill">Twilio</span>
+          <span class="pill">ElevenLabs</span>
+          <span class="pill">Claude AI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">02</div>
+      <div class="solution-content">
+        <div class="solution-tag">Presencia Digital</div>
+        <div class="solution-title">Página Web Profesional</div>
+        <div class="solution-desc">Su primera presencia digital en 20+ años de negocio. Una landing page diseñada para convertir visitantes en clientes — con sus servicios, cobertura geográfica, formulario de contacto directo y botón de WhatsApp integrado.</div>
+        <div class="solution-pills">
+          <span class="pill">Landing page</span>
+          <span class="pill">Mobile-first</span>
+          <span class="pill">SEO básico</span>
+          <span class="pill">WhatsApp CTA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">03</div>
+      <div class="solution-content">
+        <div class="solution-tag">E-Commerce</div>
+        <div class="solution-title">Tienda de Partes y Pagos Online</div>
+        <div class="solution-desc">Catálogo de partes marinas con inventario, descripciones y precios. Los clientes pueden pagar online con tarjeta de crédito o transferencia. Usted cobra sin estar presente — ingresos pasivos de las partes que ya vende hoy.</div>
+        <div class="solution-pills">
+          <span class="pill">Catálogo de partes</span>
+          <span class="pill">Pagos online</span>
+          <span class="pill">Stripe / PayPal</span>
+          <span class="pill">Inventario</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">04</div>
+      <div class="solution-content">
+        <div class="solution-tag">Automatización</div>
+        <div class="solution-title">Presupuestos e Invoices Automáticos</div>
+        <div class="solution-desc">Usted le dice a Natalie los detalles del trabajo por voz o texto — el sistema genera el presupuesto o invoice en PDF y lo manda automáticamente por email al cliente. Saber si fue abierto, registrar si pagó, recordatorio automático si no responde.</div>
+        <div class="solution-pills">
+          <span class="pill">PDF automático</span>
+          <span class="pill">Email automático</span>
+          <span class="pill">Seguimiento</span>
+          <span class="pill">N8N + Supabase</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">05</div>
+      <div class="solution-content">
+        <div class="solution-tag">Marketing Digital</div>
+        <div class="solution-title">Redes Sociales + Generación de Leads</div>
+        <div class="solution-desc">Setup completo de Instagram, Facebook y Google Business. Publicaciones automáticas de trabajos completados para demostrar experiencia. Búsqueda semanal de leads en todos los países donde opera — propietarios de botes, marinas, yacht clubs.</div>
+        <div class="solution-pills">
+          <span class="pill">Instagram</span>
+          <span class="pill">Facebook</span>
+          <span class="pill">Google Business</span>
+          <span class="pill">Leads semanales</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">06</div>
+      <div class="solution-content">
+        <div class="solution-tag">Base de Datos</div>
+        <div class="solution-title">Panel de Control — Todos sus Leads</div>
+        <div class="solution-desc">Dashboard donde usted ve en tiempo real: todos sus prospectos, por país, por tipo de bote, por estado del trabajo. Nunca más un cliente perdido en un chat enterrado. Historial completo de cada cliente.</div>
+        <div class="solution-pills">
+          <span class="pill">Supabase</span>
+          <span class="pill">Dashboard</span>
+          <span class="pill">Por país</span>
+          <span class="pill">Historial</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="solution-item">
+      <div class="solution-num">07</div>
+      <div class="solution-content">
+        <div class="solution-tag">Inteligencia Competitiva</div>
+        <div class="solution-title">Análisis de Competencia</div>
+        <div class="solution-desc">Investigación de sus competidores en Miami, Puerto Rico y los países donde opera — qué servicios ofrecen, qué precios manejan, cómo se posicionan. Un reporte mensual con oportunidades de mejora para mantenerse un paso adelante.</div>
+        <div class="solution-pills">
+          <span class="pill">Miami</span>
+          <span class="pill">Puerto Rico</span>
+          <span class="pill">Caribe</span>
+          <span class="pill">Reporte mensual</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- URGENTE: Técnicos -->
+  <div class="urgente-box">
+    <div class="urgente-tag">🚨 Urgente</div>
+    <div class="urgente-title">Reclutamiento de Técnicos — Sistema Automatizado</div>
+    <div class="urgente-desc">Sabemos que encontrar mecánicos y electricistas de botes calificados es su mayor obstáculo de crecimiento. Vamos a construir un sistema de reclutamiento automatizado: publicación en plataformas especializadas, filtrado de candidatos por Natalie, y un pipeline de candidatos calificados que llegan a usted listos para entrevista. Más técnicos = más trabajos simultáneos = más ingresos.</div>
+    <div class="solution-pills" style="margin-top:16px;">
+      <span class="pill">Indeed Marine</span>
+      <span class="pill">LinkedIn</span>
+      <span class="pill">Facebook Jobs</span>
+      <span class="pill">Filtrado automático</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GARANTÍA -->
+<section>
+  <div class="section-label">Nuestra garantía</div>
+  <div class="section-title">Lo que le<br><span>prometemos</span></div>
+
+  <div class="proof-box">
+    <div class="proof-quote">
+      "Ninguna llamada va a quedar sin respuesta.<br>
+      Ningún mensaje de WhatsApp sin contestar.<br>
+      Cada lead queda registrado.<br>
+      Si en <strong>30 días</strong> no ve diferencia — lo ajustamos hasta que funcione."
+    </div>
+    <div style="font-size:13px; color:var(--gray);">— Carriersfy AI Agency · Garantía de proceso y resultados</div>
+  </div>
+</section>
+
+
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="section-label" style="text-align:center;">¿Listo para arrancar?</div>
+  <div class="cta-title">Pruebe el sistema<br>ahora mismo</div>
+  <p class="cta-sub">Su agente Natalie ya está activa. Haga la prueba y vea cómo funciona en tiempo real.</p>
+
+  <div class="cta-contacts">
+    <div class="cta-contact-item">
+      <div class="cta-contact-icon">📞</div>
+      <div>
+        <div class="cta-contact-label">Llame a Natalie ahora</div>
+        <div class="cta-contact-value">+1 (239) 933-8185</div>
+      </div>
+    </div>
+    <div class="cta-contact-item">
+      <div class="cta-contact-icon">💬</div>
+      <div>
+        <div class="cta-contact-label">WhatsApp · envíe: join cloth-cowboy</div>
+        <div class="cta-contact-value">+1 (415) 523-8886</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">CARRIERSFY AI AGENCY · MIAMI, FLORIDA · SISTEMA CONSTRUIDO PARA MARINE CONSOLIDATED ELECTRONICS</div>
+</div>
+
+</body>
+</html>
