@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marine Consolidated Electronics — Marine Electrical Specialists</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #05111f;
+  --navy2:   #081a2e;
+  --navy3:   #0c2340;
+  --red:     #e63030;
+  --red2:    #c41f1f;
+  --gold:    #c9a84c;
+  --white:   #f0f6ff;
+  --mist:    #7a9bb5;
+  --border:  rgba(201,168,76,0.2);
+  --border2: rgba(255,255,255,0.07);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 20px 48px;
+  background: rgba(5,17,31,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border2);
+}
+
+.nav-logo {
+  display: flex; align-items:center; gap:14px;
+}
+
+.nav-logo-icon {
+  width: 42px; height: 42px;
+  position: relative; flex-shrink:0;
+}
+
+.nav-logo-text {
+  display: flex; flex-direction:column;
+  line-height: 1.1;
+}
+
+.nav-logo-text span:first-child {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px; letter-spacing: 2px; color: var(--white);
+}
+
+.nav-logo-text span:last-child {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: 3px; color: var(--gold);
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex; gap:36px; list-style:none;
+}
+
+.nav-links a {
+  font-size: 13px; font-weight:500; color: var(--mist);
+  text-decoration:none; letter-spacing:1px;
+  text-transform: uppercase;
+  transition: color .2s;
+}
+
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  background: var(--red);
+  color: var(--white) !important;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 600 !important;
+  letter-spacing: 1px;
+  transition: background .2s !important;
+}
+
+.nav-cta:hover { background: var(--red2) !important; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction:column;
+  justify-content: center; align-items:center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content:'';
+  position:absolute; inset:0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 50% 70%, rgba(8,26,46,0.9) 0%, transparent 70%),
+    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80') center center/cover no-repeat;
+  z-index:0;
+}
+
+.hero::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:200px;
+  background: linear-gradient(to bottom, transparent, var(--navy));
+  z-index:1;
+}
+
+.hero-content {
+  position: relative; z-index:2;
+  max-width: 900px;
+}
+
+/* Animated logo mark */
+.hero-mark {
+  width: 120px; height: 120px;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.mark-ring {
+  position: absolute; inset:0;
+  border-radius: 50%;
+  border: 2px solid rgba(201,168,76,0.3);
+  animation: pulse-ring 3s ease-in-out infinite;
+}
+
+.mark-ring-2 {
+  position: absolute; inset: 10px;
+  border-radius: 50%;
+  border: 1px dashed rgba(201,168,76,0.15);
+  animation: spin-slow 20s linear infinite;
+}
+
+.mark-arrow {
+  position: absolute; inset:0;
+  display: flex; align-items:center; justify-content:center;
+}
+
+.mark-arrow svg {
+  animation: spin-arrow 8s linear infinite;
+}
+
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes spin-arrow { to { transform: rotate(360deg); } }
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity:.3; }
+  50% { transform: scale(1.05); opacity:.6; }
+}
+
+.hero-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--gold); text-transform:uppercase;
+  margin-bottom: 20px;
+  display: flex; align-items:center; justify-content:center; gap:12px;
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after {
+  content:''; width:40px; height:1px; background: var(--gold); opacity:.4;
+}
+
+.hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 9vw, 100px);
+  line-height: .92; letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+
+.hero h1 em {
+  color: var(--red); font-style:normal;
+  display: block;
+}
+
+.hero-sub {
+  font-size: clamp(16px, 2vw, 19px);
+  font-weight: 300; color: var(--mist);
+  max-width: 580px; margin: 0 auto 52px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex; gap:16px; justify-content:center; flex-wrap:wrap;
+  margin-bottom: 64px;
+}
+
+.btn-primary {
+  background: var(--red); color: var(--white);
+  padding: 16px 36px; border-radius:4px;
+  font-weight:700; font-size:14px; letter-spacing:1px;
+  text-decoration:none; text-transform:uppercase;
+  transition: background .2s, transform .15s;
+  display: inline-flex; align-items:center; gap:8px;
+}
+
+.btn-primary:hover { background:var(--red2); transform:translateY(-1px); }
+
+.btn-secondary {
+  border: 1px solid rgba(201,168,76,0.4); color: var(--gold);
+  padding: 16px 36px; border-radius:4px;
+  font-weight:600; font-size:14px; letter-spacing:1px;
+  text-decoration:none; text-transform:uppercase;
+  transition: border-color .2s, background .2s;
+  display: inline-flex; align-items:center; gap:8px;
+}
+
+.btn-secondary:hover { border-color:var(--gold); background:rgba(201,168,76,0.06); }
+
+.hero-stats {
+  display: flex; gap:56px; justify-content:center; flex-wrap:wrap;
+}
+
+.hstat { text-align:center; }
+
+.hstat-n {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:52px; color:var(--white); line-height:1;
+}
+
+.hstat-n span { color:var(--red); }
+
+.hstat-l {
+  font-family:'DM Mono',monospace;
+  font-size:10px; color:var(--mist);
+  letter-spacing:2px; text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* ── TRUST BAR ── */
+.trust-bar {
+  background: var(--navy2);
+  border-top: 1px solid var(--border2);
+  border-bottom: 1px solid var(--border2);
+  padding: 24px 48px;
+  display: flex; align-items:center;
+  justify-content:center; gap:48px; flex-wrap:wrap;
+}
+
+.trust-item {
+  display:flex; align-items:center; gap:10px;
+  font-family:'DM Mono',monospace;
+  font-size:11px; color:var(--mist);
+  letter-spacing:2px; text-transform:uppercase;
+}
+
+.trust-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); flex-shrink:0; }
+
+/* ── SECTIONS ── */
+.section { padding: 96px 24px; max-width:1100px; margin:0 auto; }
+
+.section-eyebrow {
+  font-family:'DM Mono',monospace;
+  font-size:10px; color:var(--gold);
+  letter-spacing:4px; text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.section-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,6vw,72px);
+  line-height:.95; margin-bottom:48px;
+}
+
+.section-title span { color:var(--red); }
+
+.divider { width:100%; height:1px; background:var(--border2); }
+
+/* ── SERVICES ── */
+.services-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+  gap:1px;
+  background: var(--border2);
+  border: 1px solid var(--border2);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.service-card {
+  background:var(--navy2);
+  padding:36px 32px;
+  transition:background .2s;
+  position:relative;
+}
+
+.service-card:hover { background:var(--navy3); }
+
+.service-card::after {
+  content:'';
+  position:absolute; top:0; left:0;
+  width:3px; height:0;
+  background:var(--red);
+  transition:height .3s;
+}
+
+.service-card:hover::after { height:100%; }
+
+.service-icon { font-size:32px; margin-bottom:16px; }
+
+.service-name {
+  font-weight:700; font-size:16px;
+  margin-bottom:10px; line-height:1.3;
+}
+
+.service-desc {
+  font-size:13px; color:var(--mist);
+  line-height:1.7;
+}
+
+.service-tags {
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;
+}
+
+.service-tag {
+  font-family:'DM Mono',monospace;
+  font-size:10px; color:var(--gold);
+  border:1px solid rgba(201,168,76,0.25);
+  padding:2px 8px; border-radius:3px;
+  letter-spacing:1px;
+}
+
+/* ── COVERAGE MAP ── */
+.coverage-section {
+  background: var(--navy2);
+  border-top:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+  padding:96px 24px;
+}
+
+.coverage-inner {
+  max-width:1100px; margin:0 auto;
+  display:grid; grid-template-columns:1fr 1fr; gap:80px;
+  align-items:center;
+}
+
+.coverage-locations {
+  display:flex; flex-direction:column; gap:0;
+}
+
+.coverage-item {
+  display:flex; align-items:center; gap:20px;
+  padding:20px 0;
+  border-bottom:1px solid var(--border2);
+}
+
+.coverage-item:last-child { border-bottom:none; }
+
+.coverage-flag { font-size:24px; flex-shrink:0; }
+
+.coverage-info {}
+.coverage-city { font-weight:600; font-size:15px; }
+.coverage-note { font-size:12px; color:var(--mist); margin-top:2px; }
+
+.coverage-visual {
+  position:relative;
+  background:rgba(8,26,46,0.6);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:48px;
+  text-align:center;
+}
+
+.coverage-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:96px; color:var(--red); line-height:1;
+  margin-bottom:8px;
+}
+
+.coverage-label {
+  font-family:'DM Mono',monospace;
+  font-size:11px; color:var(--mist);
+  letter-spacing:3px; text-transform:uppercase;
+}
+
+.coverage-sub {
+  font-size:14px; color:var(--mist);
+  margin-top:16px; line-height:1.6;
+}
+
+/* ── WHY US ── */
+.why-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:24px;
+}
+
+.why-card {
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:32px 24px;
+  text-align:center;
+  transition:border-color .2s;
+}
+
+.why-card:hover { border-color:rgba(201,168,76,0.3); }
+
+.why-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:56px; color:var(--red);
+  line-height:1; margin-bottom:8px;
+}
+
+.why-title { font-weight:700; font-size:15px; margin-bottom:8px; }
+.why-desc { font-size:13px; color:var(--mist); line-height:1.65; }
+
+/* ── VESSEL TYPES ── */
+.vessels-row {
+  display:flex; gap:12px; flex-wrap:wrap;
+}
+
+.vessel-pill {
+  background:rgba(230,48,48,0.08);
+  border:1px solid rgba(230,48,48,0.2);
+  color:var(--white);
+  padding:10px 20px; border-radius:40px;
+  font-size:14px; font-weight:500;
+  display:flex; align-items:center; gap:8px;
+  transition:background .2s;
+}
+
+.vessel-pill:hover { background:rgba(230,48,48,0.15); }
+
+/* ── CTA SECTION ── */
+.cta-section {
+  background: linear-gradient(135deg, var(--navy3) 0%, var(--navy2) 100%);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:96px 24px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.cta-section::before {
+  content:'';
+  position:absolute; top:-200px; left:50%; transform:translateX(-50%);
+  width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle, rgba(230,48,48,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.cta-inner { position:relative; z-index:1; max-width:700px; margin:0 auto; }
+
+.cta-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,8vw,88px);
+  line-height:.92; margin-bottom:20px;
+}
+
+.cta-sub { font-size:17px; color:var(--mist); margin-bottom:48px; line-height:1.7; }
+
+.contact-grid {
+  display:flex; gap:16px; justify-content:center; flex-wrap:wrap;
+  margin-bottom:40px;
+}
+
+.contact-item {
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:16px 24px;
+  display:flex; align-items:center; gap:12px;
+  text-decoration:none; color:var(--white);
+  transition:border-color .2s, background .2s;
+}
+
+.contact-item:hover {
+  border-color:rgba(201,168,76,0.3);
+  background:rgba(201,168,76,0.04);
+}
+
+.contact-icon { font-size:22px; }
+.contact-label { font-size:10px; color:var(--mist); text-transform:uppercase; letter-spacing:1px; }
+.contact-val { font-weight:600; font-size:15px; }
+
+/* ── FOOTER ── */
+footer {
+  background:var(--navy);
+  border-top:1px solid var(--border2);
+  padding:40px 48px;
+  display:flex; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; gap:20px;
+}
+
+.footer-brand {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:18px; letter-spacing:2px; color:var(--mist);
+}
+
+.footer-note {
+  font-family:'DM Mono',monospace;
+  font-size:10px; color:rgba(255,255,255,0.2);
+  letter-spacing:2px; text-transform:uppercase;
+}
+
+/* ── MOBILE ── */
+@media (max-width:768px) {
+  nav { padding:16px 20px; }
+  .nav-links { display:none; }
+  .hero { padding:100px 20px 60px; }
+  .hero::before {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 70%, rgba(8,26,46,0.9) 0%, transparent 70%),
+      url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80') 60% center/cover no-repeat;
+  }
+  .hero-stats { gap:28px; }
+  .section { padding:64px 20px; }
+  .coverage-inner { grid-template-columns:1fr; gap:40px; }
+  .trust-bar { gap:24px; padding:20px; }
+  footer { padding:28px 20px; flex-direction:column; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="21" cy="21" r="20" stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+      <path d="M27 14 A11 11 0 1 0 11 21 L11 16 L6 21 L11 26 L11 22 A14 14 0 1 1 29 17 Z" fill="#e63030"/>
+    </svg>
+    <div class="nav-logo-text">
+      <span>Marine Consolidated</span>
+      <span>Electronics</span>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#coverage">Coverage</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact" class="nav-cta">Contact Us</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+
+    <div class="hero-mark">
+      <div class="mark-ring"></div>
+      <div class="mark-ring-2"></div>
+      <div class="mark-arrow">
+        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+          <path d="M46 24 A18 18 0 1 0 18 36 L18 28 L8 36 L18 44 L18 38 A24 24 0 1 1 50 28 Z" fill="#e63030"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="hero-eyebrow">Marine Electrical Specialists Since 2004</div>
+
+    <h1>
+      Power That<br>
+      <em>Never Fails</em><br>
+      At Sea
+    </h1>
+
+    <p class="hero-sub">
+      20+ years keeping vessels powered across Miami, Puerto Rico, Colombia, Dominican Republic, and the Caribbean. From center consoles to superyachts — we solve it.
+    </p>
+
+    <div class="hero-actions">
+      <a href="tel:+17863572397" class="btn-primary">
+        📞 Call Now — (786) 357-2397
+      </a>
+      <a href="https://wa.me/17863572397" class="btn-secondary">
+        💬 WhatsApp Us
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-n">20<span>+</span></div>
+        <div class="hstat-l">Years experience</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">7<span>+</span></div>
+        <div class="hstat-l">Countries served</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">24<span>/7</span></div>
+        <div class="hstat-l">Emergency response</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-n">∞</div>
+        <div class="hstat-l">Vessel types</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item"><div class="trust-dot"></div>Sailboats & Yachts</div>
+  <div class="trust-item"><div class="trust-dot"></div>Center Consoles</div>
+  <div class="trust-item"><div class="trust-dot"></div>Commercial Vessels</div>
+  <div class="trust-item"><div class="trust-dot"></div>Sport Fishing Boats</div>
+  <div class="trust-item"><div class="trust-dot"></div>Superyachts</div>
+  <div class="trust-item"><div class="trust-dot"></div>Pontoons & Catamarans</div>
+</div>
+
+<!-- SERVICES -->
+<div class="section" id="services">
+  <div class="section-eyebrow">What We Do</div>
+  <div class="section-title">Complete Marine<br><span>Electrical Systems</span></div>
+
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">🔋</div>
+      <div class="service-name">Battery Systems</div>
+      <div class="service-desc">Diagnosis, replacement, and full battery bank design. AGM, lithium LiFePO4, and lead-acid systems for all vessel sizes.</div>
+      <div class="service-tags">
+        <span class="service-tag">AGM</span>
+        <span class="service-tag">LiFePO4</span>
+        <span class="service-tag">Bank design</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">⚡</div>
+      <div class="service-name">DC / AC Systems</div>
+      <div class="service-desc">Complete 12V/24V DC and 110V/220V AC diagnosis, repair, and installation. Panels, wiring, breakers, and corrosion protection.</div>
+      <div class="service-tags">
+        <span class="service-tag">12V / 24V</span>
+        <span class="service-tag">AC systems</span>
+        <span class="service-tag">Galvanic</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔌</div>
+      <div class="service-name">Shore Power</div>
+      <div class="service-desc">Installation and repair of 30A and 50A shore power connections. Inverter/charger systems from Victron, Mastervolt, and Xantrex.</div>
+      <div class="service-tags">
+        <span class="service-tag">30A / 50A</span>
+        <span class="service-tag">Victron</span>
+        <span class="service-tag">Mastervolt</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🧭</div>
+      <div class="service-name">Navigation Electronics</div>
+      <div class="service-desc">Chartplotters, VHF radio, AIS transponders, autopilots, fishfinders, radar, and full NMEA 2000 network integration.</div>
+      <div class="service-tags">
+        <span class="service-tag">Garmin</span>
+        <span class="service-tag">Simrad</span>
+        <span class="service-tag">Raymarine</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔦</div>
+      <div class="service-name">Marine Lighting</div>
+      <div class="service-desc">Navigation lights, LED interior and exterior lighting, underwater lights, and USCG/COLREGS compliance upgrades.</div>
+      <div class="service-tags">
+        <span class="service-tag">LED upgrade</span>
+        <span class="service-tag">Navigation</span>
+        <span class="service-tag">COLREGS</span>
+      </div>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🛠️</div>
+      <div class="service-name">Diagnostics & Emergency</div>
+      <div class="service-desc">Full electrical diagnostic with specialized equipment. Short circuits, generator failures, lightning strike damage, and emergency on-call response.</div>
+      <div class="service-tags">
+        <span class="service-tag">Emergency</span>
+        <span class="service-tag">Generator</span>
+        <span class="service-tag">Lightning</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- COVERAGE -->
+<div class="coverage-section" id="coverage">
+  <div class="coverage-inner">
+    <div>
+      <div class="section-eyebrow">Where We Work</div>
+      <div class="section-title" style="margin-bottom:36px;">7 Countries.<br><span>One Team.</span></div>
+      <div class="coverage-locations">
+        <div class="coverage-item">
+          <div class="coverage-flag">🇺🇸</div>
+          <div class="coverage-info">
+            <div class="coverage-city">Miami & South Florida</div>
+            <div class="coverage-note">Home base — full service available</div>
+          </div>
+        </div>
+        <div class="coverage-item">
+          <div class="coverage-flag">🇵🇷</div>
+          <div class="coverage-info">
+            <div class="coverage-city">Puerto Rico</div>
+            <div class="coverage-note">Island-wide coverage</div>
+          </div>
+        </div>
+        <div class="coverage-item">
+          <div class="coverage-flag">🇲🇽</div>
+          <div class="coverage-info">
+            <div class="coverage-city">México</div>
+            <div class="coverage-note">Cancún, Los Cabos and beyond</div>
+          </div>
+        </div>
+        <div class="coverage-item">
+          <div class="coverage-flag">🇨🇴</div>
+          <div class="coverage-info">
+            <div class="coverage-city">Colombia</div>
+            <div class="coverage-note">Cartagena and coastal marinas</div>
+          </div>
+        </div>
+        <div class="coverage-item">
+          <div class="coverage-flag">🇩🇴</div>
+          <div class="coverage-info">
+            <div class="coverage-city">Dominican Republic</div>
+            <div class="coverage-note">Casa de Campo, Cap Cana</div>
+          </div>
+        </div>
+        <div class="coverage-item">
+          <div class="coverage-flag">🇻🇪</div>
+          <div class="coverage-info">
+            <div class="coverage-city">Isla Margarita, Venezuela</div>
+            <div class="coverage-note">Caribbean coverage</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="coverage-visual">
+      <div class="coverage-num">20+</div>
+      <div class="coverage-label">Years of Caribbean Experience</div>
+      <div class="coverage-sub">When your vessel is down in a foreign port, you need a team that knows the region. We've been solving electrical problems across the Caribbean for over two decades.</div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY US -->
+<div class="section" id="about">
+  <div class="section-eyebrow">Why Marine Consolidated</div>
+  <div class="section-title">Built Different.<br><span>Built to Last.</span></div>
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-num">20+</div>
+      <div class="why-title">Years in Business</div>
+      <div class="why-desc">Two decades of solving marine electrical problems across the Caribbean. We've seen everything — and fixed it.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">24/7</div>
+      <div class="why-title">Emergency Response</div>
+      <div class="why-desc">Electrical failures don't wait for business hours. Our AI assistant Natalie takes your call any time, day or night.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">2</div>
+      <div class="why-title">Languages</div>
+      <div class="why-desc">Fluent in English and Spanish. We communicate clearly with vessel owners, captains, and marina managers across the region.</div>
+    </div>
+    <div class="why-card">
+      <div class="why-num">∞</div>
+      <div class="why-title">Vessel Types</div>
+      <div class="why-desc">Sailboats, yachts, center consoles, commercial vessels, sport fishers — if it floats and has electricity, we service it.</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- VESSELS -->
+<div class="section">
+  <div class="section-eyebrow">Vessels We Service</div>
+  <div class="section-title" style="margin-bottom:32px;">Every Type<br><span>Every Size</span></div>
+  <div class="vessels-row">
+    <div class="vessel-pill">⛵ Sailboats</div>
+    <div class="vessel-pill">🛥️ Motor Yachts</div>
+    <div class="vessel-pill">🎣 Center Consoles</div>
+    <div class="vessel-pill">🏎️ Sport Boats</div>
+    <div class="vessel-pill">🎣 Fishing Boats</div>
+    <div class="vessel-pill">🚢 Commercial Vessels</div>
+    <div class="vessel-pill">🌊 Catamarans</div>
+    <div class="vessel-pill">🛟 Pontoons</div>
+    <div class="vessel-pill">⚓ Superyachts</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="contact">
+  <div class="cta-inner">
+    <div class="section-eyebrow" style="text-align:center;">Ready to Get Your Vessel Powered?</div>
+    <div class="cta-title">Let's Talk<br>About Your Boat</div>
+    <p class="cta-sub">Call us, WhatsApp us, or send an email. Our AI assistant Natalie answers 24 hours a day in English and Spanish — no missed calls, no lost leads.</p>
+
+    <div class="contact-grid">
+      <a href="tel:+17863572397" class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div>
+          <div class="contact-label">Call us</div>
+          <div class="contact-val">(786) 357-2397</div>
+        </div>
+      </a>
+      <a href="https://wa.me/17863572397" class="contact-item">
+        <div class="contact-icon">💬</div>
+        <div>
+          <div class="contact-label">WhatsApp</div>
+          <div class="contact-val">(786) 357-2397</div>
+        </div>
+      </a>
+      <a href="mailto:info@marineconsolidatedelectronics.com" class="contact-item">
+        <div class="contact-icon">✉️</div>
+        <div>
+          <div class="contact-label">Email</div>
+          <div class="contact-val">info@marineconsolidated.com</div>
+        </div>
+      </a>
+    </div>
+
+    <a href="https://wa.me/17863572397" class="btn-primary" style="font-size:15px; padding:18px 48px;">
+      Request a Free Estimate →
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Marine Consolidated Electronics</div>
+  <div class="footer-note">Miami, FL · Puerto Rico · Caribbean · Est. 2004</div>
+  <div class="footer-note">© 2026 All Rights Reserved</div>
+</footer>
+
+</body>
+</html>
