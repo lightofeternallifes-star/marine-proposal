@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marine Consolidated Electronics — Marine Electrical Specialists</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/mce-hero-yacht.jpg" fetchpriority="high">
 <style>
 :root {
   --navy:    #05111f;
@@ -12,7 +13,7 @@
   --navy3:   #0c2340;
   --red:     #e63030;
   --red2:    #c41f1f;
-  --gold:    #c9a84c;
+  --gold:    #D4AF37;
   --white:   #f0f6ff;
   --mist:    #7a9bb5;
   --border:  rgba(201,168,76,0.2);
@@ -103,10 +104,14 @@ nav {
 
 .hero::before {
   content:'';
-  position:absolute; inset:0;
-  background: 
-    radial-gradient(ellipse 80% 60% at 50% 70%, rgba(8,26,46,0.9) 0%, transparent 70%),
-    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80') center center/cover no-repeat;
+  position:absolute; inset:-2%;
+  background:
+    linear-gradient(180deg, rgba(5,17,31,0.48) 0%, rgba(5,17,31,0.18) 42%, rgba(5,17,31,0.72) 100%),
+    radial-gradient(ellipse 55% 42% at 74% 30%, rgba(255,158,44,0.46) 0%, rgba(212,175,55,0.24) 38%, transparent 72%),
+    radial-gradient(ellipse 72% 58% at 50% 72%, rgba(8,26,46,0.62) 0%, transparent 68%),
+    url('assets/mce-hero-yacht.jpg') center center/cover no-repeat;
+  filter: saturate(1.22) contrast(1.1) brightness(1.04);
+  transform: scale(1.02);
   z-index:0;
 }
 
@@ -120,6 +125,13 @@ nav {
 .hero-content {
   position: relative; z-index:2;
   max-width: 900px;
+  padding: 34px 46px 40px;
+  border-radius: 18px;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 0%, rgba(212,175,55,0.08), transparent 70%),
+    linear-gradient(180deg, rgba(5,17,31,0.52), rgba(5,17,31,0.34));
+  box-shadow: 0 30px 90px rgba(0,0,0,0.28);
+  backdrop-filter: blur(2px);
 }
 
 /* Animated logo mark */
@@ -161,8 +173,10 @@ nav {
 
 .hero-eyebrow {
   font-family: 'DM Mono', monospace;
-  font-size: 11px; letter-spacing: 4px;
+  font-size: clamp(15px, 1.45vw, 17px); letter-spacing: 4px;
   color: var(--gold); text-transform:uppercase;
+  font-weight: 600;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
   margin-bottom: 20px;
   display: flex; align-items:center; justify-content:center; gap:12px;
 }
@@ -186,7 +200,7 @@ nav {
 
 .hero-sub {
   font-size: clamp(16px, 2vw, 19px);
-  font-weight: 300; color: var(--mist);
+  font-weight: 400; color: #D4AF37;
   max-width: 580px; margin: 0 auto 52px;
   line-height: 1.7;
 }
@@ -512,8 +526,14 @@ footer {
   .hero { padding:100px 20px 60px; }
   .hero::before {
     background:
-      radial-gradient(ellipse 80% 60% at 50% 70%, rgba(8,26,46,0.9) 0%, transparent 70%),
-      url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80') 60% center/cover no-repeat;
+      linear-gradient(180deg, rgba(5,17,31,0.5) 0%, rgba(5,17,31,0.2) 44%, rgba(5,17,31,0.76) 100%),
+      radial-gradient(ellipse 64% 46% at 70% 28%, rgba(255,158,44,0.5) 0%, rgba(212,175,55,0.24) 40%, transparent 74%),
+      radial-gradient(ellipse 76% 58% at 50% 72%, rgba(8,26,46,0.64) 0%, transparent 68%),
+      url('assets/mce-hero-yacht.jpg') 52% center/cover no-repeat;
+  }
+  .hero-content {
+    width: min(100%, 620px);
+    padding: 28px 20px 32px;
   }
   .hero-stats { gap:28px; }
   .section { padding:64px 20px; }
