@@ -527,7 +527,10 @@ footer {
       linear-gradient(90deg, rgba(5,17,31,0.78) 0%, rgba(5,17,31,0.56) 52%, rgba(5,17,31,0.18) 100%),
       linear-gradient(180deg, rgba(5,17,31,0.16) 0%, rgba(5,17,31,0.04) 44%, rgba(5,17,31,0.62) 100%),
       radial-gradient(ellipse 64% 46% at 70% 28%, rgba(255,158,44,0.48) 0%, rgba(212,175,55,0.22) 40%, transparent 74%),
-      url('assets/mce-hero-yacht.jpg') 56% center/cover no-repeat;
+      url('assets/mce-hero-yacht.jpg');
+    background-repeat: no-repeat;
+    background-position: center center, center center, 70% 28%, 56% center;
+    background-size: cover, cover, cover, cover;
   }
   .hero-content {
     width: min(100%, 620px);
@@ -549,6 +552,13 @@ footer {
   .coverage-inner { grid-template-columns:1fr; gap:40px; }
   .trust-bar { gap:24px; padding:20px; }
   footer { padding:28px 20px; flex-direction:column; text-align:center; }
+}
+
+@media (max-width:480px) {
+  .hero::before {
+    background-position: center center, center center, 70% 28%, 55% top;
+    background-size: cover, cover, cover, auto 74%;
+  }
 }
 </style>
 </head>
