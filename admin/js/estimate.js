@@ -175,12 +175,35 @@ async function loadEstimate() {
   if (!data.estimate_materials.length) addLine('material');
   if (!data.estimate_labor.length) addLine('labor');
   updateTotals();
+
+  if (data.status === 'generated') {
+    await loadCurrentPdf(data.current_version);
+  }
+}
+
+async function loadCurrentPdf(versionNumber) {
+  const { data, error } = await supabase
+    .from('estimate_documents')
+    .select('storage_path')
+    .eq('estimate_id', estimateId)
+    .eq('version_number', versionNumber)
+    .maybeSingle();
+  if (error || !data) return;
+
+  const { data: signedData } = await supabase.storage
+    .from('estimate-pdfs')
+    .createSignedUrl(data.storage_path, 600);
+  if (signedData?.signedUrl) {
+    const link = document.querySelector('#download-pdf');
+    link.href = signedData.signedUrl;
+    link.hidden = false;
+  }
 }
 
 async function saveEstimate() {
   message.hidden = true;
   if (!form.reportValidity()) {
-    return;
+    return null;
   }
 
   const materials = rowValues(materialsBody)
@@ -226,6 +249,7 @@ async function saveEstimate() {
   setFormMessage(message, 'Estimate saved.');
   document.querySelector('#estimate-status').textContent =
     `Version ${data.current_version} saved ${new Date().toLocaleString()}`;
+  return data;
 }
 
 customerSelect.addEventListener('change', () => populateVessels());
@@ -241,6 +265,33 @@ document.querySelector('#save-estimate').addEventListener('click', async () => {
   } catch (error) {
     console.error(error);
     setFormMessage(message, 'Unable to save the estimate. No data was intentionally discarded.', true);
+  } finally {
+    button.disabled = false;
+  }
+});
+
+document.querySelector('#generate-pdf').addEventListener('click', async () => {
+  const button = document.querySelector('#generate-pdf');
+  const link = document.querySelector('#download-pdf');
+  button.disabled = true;
+  link.hidden = true;
+  try {
+    const savedEstimate = await saveEstimate();
+    if (!savedEstimate) return;
+    const { data, error } = await supabase.functions.invoke('generate-estimate-pdf', {
+      body: { estimateId },
+    });
+    if (error || !data?.signedUrl) {
+      throw error ?? new Error('PDF URL missing');
+    }
+    link.href = data.signedUrl;
+    link.hidden = false;
+    setFormMessage(message, 'PDF generated. Use Download PDF to open it.');
+    document.querySelector('#estimate-status').textContent =
+      `Version ${data.version} PDF generated ${new Date().toLocaleString()}`;
+  } catch (error) {
+    console.error(error);
+    setFormMessage(message, 'Unable to generate the PDF.', true);
   } finally {
     button.disabled = false;
   }
