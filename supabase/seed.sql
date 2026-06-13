@@ -1,0 +1,2 @@
+-- Production users are created through invite-only Supabase Auth.
+-- No customer or vessel data is seeded.
