@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body class="auth-loading">
+  <main class="loading-screen" aria-live="polite">
+    <div class="brand-mark">MCE</div>
+    <p>Opening MarineQuote AI...</p>
+  </main>
+  <script type="module">
+    import { getSession } from './js/auth.js';
+
+    const session = await getSession();
+    window.location.replace(session ? './dashboard.html' : './login.html');
+  </script>
+</body>
+</html>

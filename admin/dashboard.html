@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Dashboard | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span>
+          <strong>MarineQuote</strong>
+          <small>Estimate Management</small>
+        </span>
+      </a>
+
+      <nav aria-label="Primary navigation">
+        <a class="nav-item active" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">MarineQuote AI</p>
+          <h1>Dashboard</h1>
+          <p>Manage current estimates and customer records.</p>
+        </div>
+        <a class="button primary" href="./estimate.html">New estimate</a>
+      </header>
+
+      <section class="metric-grid" aria-label="Estimate summary">
+        <article class="metric-card">
+          <span>Draft estimates</span>
+          <strong id="draft-count">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Generated estimates</span>
+          <strong id="generated-count">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Sent estimates</span>
+          <strong id="sent-count">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Customers</span>
+          <strong id="customer-count">0</strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent estimates</h2>
+            <p>Your most recently updated estimates.</p>
+          </div>
+          <a href="./estimates.html">View all</a>
+        </div>
+        <div id="recent-estimates" class="table-wrap">
+          <p class="empty-state">No estimates yet.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./js/dashboard.js"></script>
+</body>
+</html>
