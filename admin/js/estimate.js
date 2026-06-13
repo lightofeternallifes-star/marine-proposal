@@ -183,34 +183,6 @@ async function saveEstimate() {
     return;
   }
 
-  const estimatePayload = {
-    customer_id: customerSelect.value,
-    vessel_id: vesselSelect.value,
-    job_description: normalizeOptional(form.elements.jobDescription.value),
-    recommended_work: normalizeOptional(form.elements.recommendedWork.value),
-    customer_notes: normalizeOptional(form.elements.customerNotes.value),
-    internal_notes: normalizeOptional(form.elements.internalNotes.value),
-    discount_cents: dollarsToCents(form.elements.discount.value),
-    tax_rate: optionalNumber(form.elements.taxRate.value) ?? 0,
-    validity_days: Number(form.elements.validityDays.value),
-    updated_by: profile.id,
-  };
-
-  if (estimateId) {
-    const { error } = await supabase.from('estimates').update(estimatePayload).eq('id', estimateId);
-    if (error) throw error;
-  } else {
-    const { data, error } = await supabase
-      .from('estimates')
-      .insert({ ...estimatePayload, estimate_number: '', created_by: profile.id })
-      .select('id, estimate_number')
-      .single();
-    if (error) throw error;
-    estimateId = data.id;
-    document.querySelector('#estimate-title').textContent = data.estimate_number;
-    window.history.replaceState({}, '', `./estimate.html?id=${estimateId}`);
-  }
-
   const materials = rowValues(materialsBody)
     .filter((item) => item.description.trim())
     .map((item, index) => ({
@@ -232,24 +204,28 @@ async function saveEstimate() {
       sort_order: index,
     }));
 
-  const deleteResults = await Promise.all([
-    supabase.from('estimate_materials').delete().eq('estimate_id', estimateId),
-    supabase.from('estimate_labor').delete().eq('estimate_id', estimateId),
-  ]);
-  if (deleteResults.some((result) => result.error)) {
-    throw new Error('Unable to replace estimate line items.');
-  }
+  const { data, error } = await supabase.rpc('save_estimate', {
+    p_estimate_id: estimateId,
+    p_customer_id: customerSelect.value,
+    p_vessel_id: vesselSelect.value,
+    p_job_description: normalizeOptional(form.elements.jobDescription.value),
+    p_recommended_work: normalizeOptional(form.elements.recommendedWork.value),
+    p_customer_notes: normalizeOptional(form.elements.customerNotes.value),
+    p_internal_notes: normalizeOptional(form.elements.internalNotes.value),
+    p_discount_cents: dollarsToCents(form.elements.discount.value),
+    p_tax_rate: optionalNumber(form.elements.taxRate.value) ?? 0,
+    p_validity_days: Number(form.elements.validityDays.value),
+    p_materials: materials,
+    p_labor: labor,
+  });
+  if (error) throw error;
 
-  const insertResults = await Promise.all([
-    materials.length ? supabase.from('estimate_materials').insert(materials) : Promise.resolve({ error: null }),
-    labor.length ? supabase.from('estimate_labor').insert(labor) : Promise.resolve({ error: null }),
-  ]);
-  if (insertResults.some((result) => result.error)) {
-    throw new Error('Unable to save estimate line items.');
-  }
-
+  estimateId = data.id;
+  document.querySelector('#estimate-title').textContent = data.estimate_number;
+  window.history.replaceState({}, '', `./estimate.html?id=${estimateId}`);
   setFormMessage(message, 'Estimate saved.');
-  document.querySelector('#estimate-status').textContent = `Saved ${new Date().toLocaleString()}`;
+  document.querySelector('#estimate-status').textContent =
+    `Version ${data.current_version} saved ${new Date().toLocaleString()}`;
 }
 
 customerSelect.addEventListener('change', () => populateVessels());

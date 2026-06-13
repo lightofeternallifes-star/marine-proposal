@@ -20,4 +20,51 @@ async function loadCounts() {
   document.querySelector('#customer-count').textContent = customers.count ?? 0;
 }
 
-await loadCounts();
+function renderRecentEstimates(estimates) {
+  const container = document.querySelector('#recent-estimates');
+  if (!estimates.length) {
+    container.innerHTML = '<p class="empty-state">No estimates yet.</p>';
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'data-table';
+  table.innerHTML = '<thead><tr><th>Estimate</th><th>Customer</th><th>Status</th><th>Updated</th><th></th></tr></thead><tbody></tbody>';
+  const body = table.querySelector('tbody');
+  for (const estimate of estimates) {
+    const row = document.createElement('tr');
+    const values = [
+      estimate.estimate_number,
+      estimate.customers.company_name || estimate.customers.contact_name,
+      estimate.status,
+      new Date(estimate.updated_at).toLocaleDateString(),
+    ];
+    for (const value of values) {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.append(cell);
+    }
+    const actionCell = document.createElement('td');
+    const link = document.createElement('a');
+    link.className = 'table-action';
+    link.href = `./estimate.html?id=${encodeURIComponent(estimate.id)}`;
+    link.textContent = 'Open';
+    actionCell.append(link);
+    row.append(actionCell);
+    body.append(row);
+  }
+  container.replaceChildren(table);
+}
+
+async function loadRecentEstimates() {
+  const { data, error } = await supabase
+    .from('estimates')
+    .select('id, estimate_number, status, updated_at, customers(contact_name, company_name)')
+    .order('updated_at', { ascending: false })
+    .limit(8);
+  if (!error) {
+    renderRecentEstimates(data);
+  }
+}
+
+await Promise.all([loadCounts(), loadRecentEstimates()]);
