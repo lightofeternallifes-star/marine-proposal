@@ -528,6 +528,129 @@ textarea:focus {
   text-align: center;
 }
 
+.preview-workspace {
+  max-width: 1250px;
+}
+
+.estimate-preview {
+  padding: clamp(24px, 5vw, 56px);
+}
+
+.preview-document-header,
+.preview-document-header > div,
+.preview-two-column,
+.preview-summary {
+  display: flex;
+}
+
+.preview-document-header {
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 28px;
+  border-bottom: 4px solid var(--navy-900);
+}
+
+.preview-document-header > div {
+  align-items: center;
+  gap: 14px;
+}
+
+.preview-document-header strong,
+.preview-document-header small,
+.preview-document-number span {
+  display: block;
+}
+
+.preview-document-header small,
+.preview-document-number span {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.preview-document-number {
+  text-align: right;
+}
+
+.preview-document-number strong {
+  margin-top: 4px;
+  color: var(--red);
+  font-size: 1.2rem;
+}
+
+.preview-two-column {
+  gap: 48px;
+  padding: 32px 0;
+}
+
+.preview-two-column > div {
+  flex: 1;
+}
+
+.preview-two-column h2,
+.preview-section h2,
+.preview-summary h2 {
+  margin: 0 0 16px;
+  color: var(--navy-800);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.preview-details {
+  margin: 0;
+}
+
+.preview-details div {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 14px;
+  padding: 5px 0;
+}
+
+.preview-details dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.preview-details dd {
+  margin: 0;
+}
+
+.preview-section {
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.preview-section > p,
+.preview-summary p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.65;
+}
+
+.preview-summary {
+  align-items: flex-start;
+  gap: 48px;
+  padding-top: 28px;
+  border-top: 4px solid var(--navy-900);
+}
+
+.preview-summary > div {
+  flex: 1;
+}
+
+.preview-summary .totals-list {
+  width: min(100%, 380px);
+  margin: 0;
+}
+
+.preview-validity {
+  margin-top: 24px !important;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
 @media (max-width: 900px) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -603,5 +726,16 @@ textarea:focus {
   .header-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .preview-document-header,
+  .preview-two-column,
+  .preview-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .preview-document-number {
+    text-align: left;
   }
 }

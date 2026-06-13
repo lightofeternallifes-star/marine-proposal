@@ -20,6 +20,17 @@ let estimateId = params.get('id');
 let customers = [];
 let vessels = [];
 
+function updatePreviewLink() {
+  const link = document.querySelector('#preview-estimate');
+  if (!estimateId) {
+    link.hidden = true;
+    link.removeAttribute('href');
+    return;
+  }
+  link.href = `./estimate-preview.html?id=${encodeURIComponent(estimateId)}`;
+  link.hidden = false;
+}
+
 function optionalNumber(value) {
   return value === '' ? null : Number(value);
 }
@@ -130,6 +141,7 @@ async function loadEstimate() {
   if (!estimateId) {
     addLine('material');
     addLine('labor');
+    updatePreviewLink();
     return;
   }
 
@@ -175,6 +187,7 @@ async function loadEstimate() {
   if (!data.estimate_materials.length) addLine('material');
   if (!data.estimate_labor.length) addLine('labor');
   updateTotals();
+  updatePreviewLink();
 
   if (data.status === 'generated') {
     await loadCurrentPdf(data.current_version);
@@ -246,6 +259,7 @@ async function saveEstimate() {
   estimateId = data.id;
   document.querySelector('#estimate-title').textContent = data.estimate_number;
   window.history.replaceState({}, '', `./estimate.html?id=${estimateId}`);
+  updatePreviewLink();
   setFormMessage(message, 'Estimate saved.');
   document.querySelector('#estimate-status').textContent =
     `Version ${data.current_version} saved ${new Date().toLocaleString()}`;

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Estimate Preview | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item active" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content preview-workspace">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Estimate preview</p>
+          <h1 id="preview-number">Loading estimate...</h1>
+          <p id="preview-status"></p>
+        </div>
+        <div class="header-actions">
+          <a id="edit-estimate" class="button link" href="./estimates.html">Edit estimate</a>
+          <a id="preview-download-pdf" class="button secondary-light" href="#" target="_blank" rel="noopener" hidden>Download PDF</a>
+          <button id="preview-generate-pdf" class="button primary" type="button">Generate PDF</button>
+        </div>
+      </header>
+
+      <article id="estimate-preview" class="estimate-preview panel" hidden>
+        <header class="preview-document-header">
+          <div>
+            <span class="brand-mark small">MCE</span>
+            <div>
+              <strong>Marine Consolidated Electronics</strong>
+              <small>Professional Marine Electronics Estimate</small>
+            </div>
+          </div>
+          <div class="preview-document-number">
+            <span>Estimate</span>
+            <strong id="document-number"></strong>
+          </div>
+        </header>
+
+        <section class="preview-two-column">
+          <div>
+            <h2>Customer</h2>
+            <dl id="preview-customer" class="preview-details"></dl>
+          </div>
+          <div>
+            <h2>Vessel</h2>
+            <dl id="preview-vessel" class="preview-details"></dl>
+          </div>
+        </section>
+
+        <section class="preview-section">
+          <h2>Job Description</h2>
+          <p id="preview-job-description"></p>
+        </section>
+
+        <section class="preview-section">
+          <h2>Recommended Work</h2>
+          <p id="preview-recommended-work"></p>
+        </section>
+
+        <section class="preview-section">
+          <h2>Materials</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Description</th><th>Quantity</th><th>Unit Price</th><th>Total</th></tr>
+              </thead>
+              <tbody id="preview-materials"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="preview-section">
+          <h2>Labor</h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Description</th><th>Hours</th><th>Rate</th><th>Total</th></tr>
+              </thead>
+              <tbody id="preview-labor"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="preview-summary">
+          <div>
+            <h2>Notes</h2>
+            <p id="preview-notes"></p>
+            <p id="preview-validity" class="preview-validity"></p>
+          </div>
+          <dl class="totals-list">
+            <div><dt>Materials</dt><dd id="preview-materials-total"></dd></div>
+            <div><dt>Labor</dt><dd id="preview-labor-total"></dd></div>
+            <div><dt>Subtotal</dt><dd id="preview-subtotal"></dd></div>
+            <div><dt>Discount</dt><dd id="preview-discount"></dd></div>
+            <div><dt>Tax</dt><dd id="preview-tax"></dd></div>
+            <div class="grand-total"><dt>Total</dt><dd id="preview-total"></dd></div>
+          </dl>
+        </section>
+      </article>
+
+      <p id="preview-message" class="form-message" role="status" hidden></p>
+    </main>
+  </div>
+
+  <script type="module" src="./js/estimate-preview.js"></script>
+</body>
+</html>
