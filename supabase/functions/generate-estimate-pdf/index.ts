@@ -301,7 +301,6 @@ async function createEstimatePdf(estimate: EstimateRecord) {
     drawParagraph(estimate.customer_notes);
   }
 
-  ensureSpace(60);
   page.drawText(`This estimate is valid for ${estimate.validity_days} days from the generated date.`, {
     x: margin,
     y: 34,
