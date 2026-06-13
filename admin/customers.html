@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Customers | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item active" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Directory</p>
+          <h1>Customers</h1>
+          <p>Manage customer contact and billing information.</p>
+        </div>
+        <button id="new-customer" class="button primary" type="button">New customer</button>
+      </header>
+
+      <section class="panel">
+        <div class="toolbar">
+          <label class="search-field" for="customer-search">
+            <span>Search</span>
+            <input id="customer-search" type="search" placeholder="Name, company, email or phone">
+          </label>
+        </div>
+        <div id="customer-list" class="table-wrap" aria-live="polite"></div>
+      </section>
+
+      <section id="customer-editor" class="panel editor-panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h2 id="customer-editor-title">New customer</h2>
+            <p>Fields marked required must be completed.</p>
+          </div>
+          <button id="close-customer-editor" class="button link" type="button">Close</button>
+        </div>
+
+        <form id="customer-form" novalidate>
+          <input id="customer-id" name="id" type="hidden">
+          <div class="form-grid">
+            <label>Contact name *
+              <input name="contactName" maxlength="160" required>
+            </label>
+            <label>Company
+              <input name="companyName" maxlength="160">
+            </label>
+            <label>Email
+              <input name="email" type="email" maxlength="254">
+            </label>
+            <label>Phone
+              <input name="phone" type="tel" maxlength="40">
+            </label>
+            <label class="span-2">Street address
+              <input name="street" maxlength="200">
+            </label>
+            <label>City
+              <input name="city" maxlength="100">
+            </label>
+            <label>State / Province
+              <input name="state" maxlength="100">
+            </label>
+            <label>Postal code
+              <input name="postalCode" maxlength="24">
+            </label>
+            <label>Country
+              <input name="country" maxlength="100" value="United States">
+            </label>
+            <label class="span-2">Internal notes
+              <textarea name="notes" rows="4"></textarea>
+            </label>
+          </div>
+          <p id="customer-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button id="archive-customer" class="button danger" type="button" hidden>Archive customer</button>
+            <button id="save-customer" class="button primary" type="submit">Save customer</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./js/customers.js"></script>
+</body>
+</html>

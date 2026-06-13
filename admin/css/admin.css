@@ -108,6 +108,11 @@ button,
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.button.danger {
+  color: var(--white);
+  background: var(--danger);
+}
+
 .button.link {
   padding-inline: 0;
   color: var(--navy-700);
@@ -351,6 +356,82 @@ textarea:focus {
   overflow-x: auto;
 }
 
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.data-table th {
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.table-action {
+  padding: 7px 10px;
+  border: 0;
+  color: var(--navy-700);
+  background: transparent;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.search-field {
+  width: min(100%, 440px);
+  margin: 0;
+}
+
+.search-field span {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.editor-panel {
+  margin-top: 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+.form-grid label {
+  min-width: 0;
+}
+
+.form-grid .span-2 {
+  grid-column: span 2;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
 .empty-state {
   padding: 40px 12px;
   color: var(--muted);
@@ -410,5 +491,18 @@ textarea:focus {
 
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .span-2 {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
   }
 }

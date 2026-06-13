@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Vessels | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item active" href="./vessels.html">Vessels</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Directory</p>
+          <h1>Vessels</h1>
+          <p>Maintain vessel details for accurate estimates.</p>
+        </div>
+        <button id="new-vessel" class="button primary" type="button">New vessel</button>
+      </header>
+
+      <section class="panel">
+        <div class="toolbar">
+          <label class="search-field" for="vessel-search">
+            <span>Search</span>
+            <input id="vessel-search" type="search" placeholder="Vessel, customer, registration or model">
+          </label>
+        </div>
+        <div id="vessel-list" class="table-wrap" aria-live="polite"></div>
+      </section>
+
+      <section id="vessel-editor" class="panel editor-panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h2 id="vessel-editor-title">New vessel</h2>
+            <p>Associate every vessel with a customer.</p>
+          </div>
+          <button id="close-vessel-editor" class="button link" type="button">Close</button>
+        </div>
+
+        <form id="vessel-form" novalidate>
+          <input name="id" type="hidden">
+          <div class="form-grid">
+            <label class="span-2">Customer *
+              <select name="customerId" required>
+                <option value="">Select customer</option>
+              </select>
+            </label>
+            <label>Vessel name
+              <input name="vesselName" maxlength="160">
+            </label>
+            <label>Vessel type
+              <input name="vesselType" maxlength="100" placeholder="Motor yacht, sailboat, commercial">
+            </label>
+            <label>Manufacturer
+              <input name="manufacturer" maxlength="120">
+            </label>
+            <label>Model
+              <input name="model" maxlength="120">
+            </label>
+            <label>Year
+              <input name="year" type="number" min="1900" max="2100">
+            </label>
+            <label>Length (feet)
+              <input name="lengthFeet" type="number" min="0.01" step="0.01">
+            </label>
+            <label>Registration / Documentation number
+              <input name="registrationNumber" maxlength="80">
+            </label>
+            <label>Current location
+              <input name="location" maxlength="240">
+            </label>
+            <label class="span-2">Technical notes
+              <textarea name="notes" rows="4"></textarea>
+            </label>
+          </div>
+          <p id="vessel-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button id="archive-vessel" class="button danger" type="button" hidden>Archive vessel</button>
+            <button id="save-vessel" class="button primary" type="submit">Save vessel</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./js/vessels.js"></script>
+</body>
+</html>
