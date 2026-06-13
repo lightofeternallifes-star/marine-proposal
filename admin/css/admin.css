@@ -130,14 +130,39 @@ button,
 }
 
 .auth-page {
+  position: relative;
+  overflow: hidden;
   color: var(--white);
+  background: var(--navy-950);
+  isolation: isolate;
+}
+
+.auth-page::before,
+.auth-page::after {
+  position: fixed;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.auth-page::before {
+  z-index: -2;
+  background: url("../../assets/mce-hero-yacht.jpg") 56% center / cover no-repeat;
+  filter: saturate(1.24) contrast(1.12) brightness(1.05);
+  transform: scale(1.02);
+}
+
+.auth-page::after {
+  z-index: -1;
   background:
-    linear-gradient(110deg, rgba(4, 16, 29, 0.98), rgba(7, 24, 39, 0.9)),
-    url("../../assets/mce-hero-yacht.jpg") center / cover;
+    linear-gradient(90deg, rgba(5, 17, 31, 0.76) 0%, rgba(5, 17, 31, 0.52) 40%, rgba(5, 17, 31, 0.28) 100%),
+    linear-gradient(180deg, rgba(5, 17, 31, 0.2) 0%, rgba(5, 17, 31, 0.08) 48%, rgba(5, 17, 31, 0.48) 100%);
 }
 
 .auth-layout {
   display: grid;
+  position: relative;
+  z-index: 0;
   min-height: 100vh;
   grid-template-columns: minmax(0, 1fr) minmax(360px, 480px);
   gap: 8vw;
@@ -696,6 +721,16 @@ textarea:focus {
 }
 
 @media (max-width: 900px) {
+  .auth-page::before {
+    background-position: 58% center;
+  }
+
+  .auth-page::after {
+    background:
+      linear-gradient(90deg, rgba(5, 17, 31, 0.48), rgba(5, 17, 31, 0.3)),
+      linear-gradient(180deg, rgba(5, 17, 31, 0.18), rgba(5, 17, 31, 0.42));
+  }
+
   .auth-layout {
     grid-template-columns: 1fr;
   }
@@ -736,6 +771,10 @@ textarea:focus {
 }
 
 @media (max-width: 560px) {
+  .auth-page::before {
+    background-position: 55% center;
+  }
+
   .auth-layout {
     padding: 16px;
   }
