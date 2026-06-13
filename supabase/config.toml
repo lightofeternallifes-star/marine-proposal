@@ -379,6 +379,11 @@ enabled = true
 verify_jwt = true
 entrypoint = "./functions/generate-estimate-pdf/index.ts"
 
+[functions.send-estimate-email]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/send-estimate-email/index.ts"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
