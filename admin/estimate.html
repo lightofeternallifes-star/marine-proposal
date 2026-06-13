@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Estimate Builder | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item active" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content estimate-workspace">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Estimate builder</p>
+          <h1 id="estimate-title">New estimate</h1>
+          <p id="estimate-status">Unsaved draft</p>
+        </div>
+        <div class="header-actions">
+          <a class="button link" href="./estimates.html">Back to estimates</a>
+          <button id="save-estimate" class="button primary" type="button">Save draft</button>
+        </div>
+      </header>
+
+      <form id="estimate-form" novalidate>
+        <section class="panel">
+          <div class="panel-header">
+            <div><h2>Customer and vessel</h2><p>Select the owner and vessel for this estimate.</p></div>
+          </div>
+          <div class="form-grid">
+            <label>Customer *
+              <select name="customerId" required><option value="">Select customer</option></select>
+            </label>
+            <label>Vessel *
+              <select name="vesselId" required disabled><option value="">Select vessel</option></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel editor-panel">
+          <div class="panel-header">
+            <div><h2>Scope of work</h2><p>Describe the reported issue and proposed service.</p></div>
+          </div>
+          <div class="form-grid">
+            <label class="span-2">Job description
+              <textarea name="jobDescription" rows="5"></textarea>
+            </label>
+            <label class="span-2">Recommended work
+              <textarea name="recommendedWork" rows="6"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel editor-panel">
+          <div class="panel-header">
+            <div><h2>Materials</h2><p>Add parts, equipment and consumable materials.</p></div>
+            <button id="add-material" class="button secondary-light" type="button">Add material</button>
+          </div>
+          <div class="line-items-wrap">
+            <table class="data-table line-items-table">
+              <thead>
+                <tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price</th><th>Markup %</th><th>Total</th><th></th></tr>
+              </thead>
+              <tbody id="materials-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel editor-panel">
+          <div class="panel-header">
+            <div><h2>Labor</h2><p>Add labor tasks, hours and rates.</p></div>
+            <button id="add-labor" class="button secondary-light" type="button">Add labor</button>
+          </div>
+          <div class="line-items-wrap">
+            <table class="data-table line-items-table">
+              <thead>
+                <tr><th>Description</th><th>Hours</th><th>Hourly rate</th><th>Total</th><th></th></tr>
+              </thead>
+              <tbody id="labor-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="estimate-bottom-grid editor-panel">
+          <div class="panel">
+            <h2>Notes</h2>
+            <label>Customer-facing notes
+              <textarea name="customerNotes" rows="5"></textarea>
+            </label>
+            <label>Internal notes
+              <textarea name="internalNotes" rows="5"></textarea>
+            </label>
+          </div>
+
+          <div class="panel totals-panel">
+            <h2>Pricing</h2>
+            <label>Discount
+              <div class="money-input"><span>$</span><input name="discount" type="number" min="0" step="0.01" value="0.00"></div>
+            </label>
+            <label>Tax rate
+              <div class="money-input"><input name="taxRate" type="number" min="0" max="100" step="0.0001" value="0"><span>%</span></div>
+            </label>
+            <label>Estimate valid for
+              <div class="money-input"><input name="validityDays" type="number" min="1" max="365" value="30"><span>days</span></div>
+            </label>
+            <dl class="totals-list">
+              <div><dt>Materials</dt><dd id="materials-total">$0.00</dd></div>
+              <div><dt>Labor</dt><dd id="labor-total">$0.00</dd></div>
+              <div><dt>Subtotal</dt><dd id="subtotal">$0.00</dd></div>
+              <div><dt>Discount</dt><dd id="discount-total">-$0.00</dd></div>
+              <div><dt>Tax</dt><dd id="tax-total">$0.00</dd></div>
+              <div class="grand-total"><dt>Total</dt><dd id="grand-total">$0.00</dd></div>
+            </dl>
+          </div>
+        </section>
+
+        <p id="estimate-message" class="form-message" role="status" hidden></p>
+      </form>
+    </main>
+  </div>
+
+  <template id="material-row-template">
+    <tr>
+      <td><input data-field="description" maxlength="240" required aria-label="Material description"></td>
+      <td><input data-field="quantity" type="number" min="0.001" step="0.001" value="1" required aria-label="Quantity"></td>
+      <td><input data-field="unit" maxlength="40" value="each" required aria-label="Unit"></td>
+      <td><input data-field="unitPrice" type="number" min="0" step="0.01" value="0.00" required aria-label="Unit price"></td>
+      <td><input data-field="markup" type="number" min="0" max="1000" step="0.0001" value="0" required aria-label="Markup percent"></td>
+      <td data-field="lineTotal">$0.00</td>
+      <td><button class="table-action remove-line" type="button">Remove</button></td>
+    </tr>
+  </template>
+
+  <template id="labor-row-template">
+    <tr>
+      <td><input data-field="description" maxlength="240" required aria-label="Labor description"></td>
+      <td><input data-field="hours" type="number" min="0.01" step="0.01" value="1" required aria-label="Labor hours"></td>
+      <td><input data-field="hourlyRate" type="number" min="0" step="0.01" value="0.00" required aria-label="Hourly rate"></td>
+      <td data-field="lineTotal">$0.00</td>
+      <td><button class="table-action remove-line" type="button">Remove</button></td>
+    </tr>
+  </template>
+
+  <script type="module" src="./js/estimate.js"></script>
+</body>
+</html>

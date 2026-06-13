@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Estimates | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item active" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="page-header">
+        <div><p class="eyebrow">Estimate management</p><h1>Estimates</h1><p>Create and manage active estimates.</p></div>
+        <a class="button primary" href="./estimate.html">New estimate</a>
+      </header>
+      <section class="panel">
+        <div class="toolbar">
+          <label class="search-field" for="estimate-search">
+            <span>Search</span>
+            <input id="estimate-search" type="search" placeholder="Estimate, customer or vessel">
+          </label>
+          <label>Status
+            <select id="estimate-status-filter">
+              <option value="">All active estimates</option>
+              <option value="draft">Draft</option>
+              <option value="generated">Generated</option>
+            </select>
+          </label>
+        </div>
+        <div id="estimate-list" class="table-wrap" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+  <script type="module" src="./js/estimates.js"></script>
+</body>
+</html>
