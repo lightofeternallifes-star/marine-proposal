@@ -9,6 +9,11 @@ const estimateId = params.get('id');
 const message = document.querySelector('#preview-message');
 const generateButton = document.querySelector('#preview-generate-pdf');
 const downloadLink = document.querySelector('#preview-download-pdf');
+const deliveryPanel = document.querySelector('#email-delivery-panel');
+const deliveryForm = document.querySelector('#email-delivery-form');
+const deliveryMessage = document.querySelector('#delivery-message');
+const deliveryList = document.querySelector('#delivery-list');
+const sendButton = document.querySelector('#send-estimate-email');
 let currentVersion = 0;
 
 function addDetail(container, label, value) {
@@ -38,7 +43,7 @@ async function loadCurrentPdf() {
     .eq('estimate_id', estimateId)
     .eq('version_number', currentVersion)
     .maybeSingle();
-  if (error || !data) return;
+  if (error || !data) return false;
 
   const { data: signedData } = await supabase.storage
     .from('estimate-pdfs')
@@ -46,7 +51,54 @@ async function loadCurrentPdf() {
   if (signedData?.signedUrl) {
     downloadLink.href = signedData.signedUrl;
     downloadLink.hidden = false;
+    deliveryPanel.hidden = false;
+    return true;
   }
+  return false;
+}
+
+function renderDeliveries(deliveries) {
+  deliveryList.replaceChildren();
+  if (!deliveries.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'No delivery attempts yet.';
+    deliveryList.append(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'data-table';
+  table.innerHTML = `
+    <thead><tr><th>Recipient</th><th>Status</th><th>Requested</th></tr></thead>
+    <tbody></tbody>
+  `;
+  const body = table.querySelector('tbody');
+  for (const delivery of deliveries) {
+    const row = document.createElement('tr');
+    const recipient = document.createElement('td');
+    recipient.textContent = delivery.recipient_email;
+    const statusCell = document.createElement('td');
+    const status = document.createElement('span');
+    status.className = `delivery-status ${delivery.status}`;
+    status.textContent = delivery.status;
+    statusCell.append(status);
+    const requested = document.createElement('td');
+    requested.textContent = new Date(delivery.queued_at).toLocaleString();
+    row.append(recipient, statusCell, requested);
+    body.append(row);
+  }
+  deliveryList.append(table);
+}
+
+async function loadDeliveries() {
+  if (!estimateId) return;
+  const { data, error } = await supabase
+    .from('estimate_deliveries')
+    .select('id, recipient_email, status, queued_at, sent_at, failed_at')
+    .eq('estimate_id', estimateId)
+    .order('created_at', { ascending: false });
+  if (!error) renderDeliveries(data);
 }
 
 async function loadEstimate() {
@@ -70,6 +122,7 @@ async function loadEstimate() {
   }
 
   currentVersion = data.current_version;
+  deliveryForm.elements.recipientEmail.value = data.customers.email || '';
   document.querySelector('#preview-number').textContent = data.estimate_number;
   document.querySelector('#document-number').textContent = data.estimate_number;
   document.querySelector('#preview-status').textContent =
@@ -143,6 +196,7 @@ async function loadEstimate() {
 
   document.querySelector('#estimate-preview').hidden = false;
   await loadCurrentPdf();
+  await loadDeliveries();
 }
 
 generateButton.addEventListener('click', async () => {
@@ -159,12 +213,46 @@ generateButton.addEventListener('click', async () => {
     currentVersion = data.version;
     downloadLink.href = data.signedUrl;
     downloadLink.hidden = false;
+    deliveryPanel.hidden = false;
     setFormMessage(message, 'PDF generated. Use Download PDF to open it.');
   } catch (error) {
     console.error(error);
     setFormMessage(message, 'Unable to generate the PDF.', true);
   } finally {
     generateButton.disabled = false;
+  }
+});
+
+deliveryForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  deliveryMessage.hidden = true;
+  if (!deliveryForm.reportValidity()) return;
+
+  const recipientEmail = deliveryForm.elements.recipientEmail.value.trim();
+  if (!window.confirm(`Send the current estimate PDF to ${recipientEmail}?`)) {
+    return;
+  }
+
+  sendButton.disabled = true;
+  sendButton.textContent = 'Sending...';
+  setFormMessage(deliveryMessage, 'Email queued for delivery.');
+  try {
+    const { data, error } = await supabase.functions.invoke('send-estimate-email', {
+      body: { estimateId, recipientEmail },
+    });
+    if (error || data?.status !== 'sent') {
+      throw error ?? new Error('Email delivery failed');
+    }
+    setFormMessage(deliveryMessage, `Estimate sent to ${data.recipientEmail}.`);
+    document.querySelector('#preview-status').textContent =
+      `Version ${currentVersion} · sent · ${new Date().toLocaleString()}`;
+  } catch (error) {
+    console.error(error);
+    setFormMessage(deliveryMessage, 'Email delivery failed. Review the status and try again.', true);
+  } finally {
+    await loadDeliveries();
+    sendButton.disabled = false;
+    sendButton.textContent = 'Send Email';
   }
 });
 

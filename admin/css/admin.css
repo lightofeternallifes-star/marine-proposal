@@ -651,6 +651,50 @@ textarea:focus {
   font-size: 0.875rem;
 }
 
+.delivery-form {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+}
+
+.delivery-form label {
+  flex: 1;
+  margin: 0;
+}
+
+.delivery-history {
+  margin-top: 28px;
+}
+
+.delivery-history h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+
+.delivery-status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.delivery-status.queued {
+  color: #694100;
+  background: #fff0c2;
+}
+
+.delivery-status.sent {
+  color: #075a37;
+  background: #d8f3e5;
+}
+
+.delivery-status.failed {
+  color: #8f1720;
+  background: #fde1e3;
+}
+
 @media (max-width: 900px) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -737,5 +781,10 @@ textarea:focus {
 
   .preview-document-number {
     text-align: left;
+  }
+
+  .delivery-form {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

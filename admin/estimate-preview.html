@@ -118,6 +118,33 @@
         </section>
       </article>
 
+      <section id="email-delivery-panel" class="panel editor-panel delivery-panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h2>Email delivery</h2>
+            <p>Confirm the recipient before sending the current PDF attachment.</p>
+          </div>
+        </div>
+        <form id="email-delivery-form" class="delivery-form">
+          <label for="delivery-recipient">Recipient email
+            <input
+              id="delivery-recipient"
+              name="recipientEmail"
+              type="email"
+              maxlength="254"
+              autocomplete="email"
+              required
+            >
+          </label>
+          <button id="send-estimate-email" class="button primary" type="submit">Send Email</button>
+        </form>
+        <p id="delivery-message" class="form-message" role="status" hidden></p>
+        <div class="delivery-history">
+          <h3>Delivery history</h3>
+          <div id="delivery-list"><p class="empty-state">No delivery attempts yet.</p></div>
+        </div>
+      </section>
+
       <p id="preview-message" class="form-message" role="status" hidden></p>
     </main>
   </div>
