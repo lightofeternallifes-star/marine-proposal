@@ -107,7 +107,7 @@ Deno.serve(async (request) => {
     const { data: estimate, error: estimateError } = await supabase
       .from('estimates')
       .select(`
-        id, estimate_number, current_version, currency, total_cents,
+        id, estimate_number, current_version, currency, total_cents, validity_days,
         job_description, recommended_work,
         customers(contact_name, company_name, email),
         vessels(vessel_name, manufacturer, model, registration_number)
@@ -191,33 +191,99 @@ Deno.serve(async (request) => {
     const serviceSummary = estimate.recommended_work
       || estimate.job_description
       || 'Marine electrical services';
-    const subject = `Quote ${estimate.estimate_number} from Marine Consolidated Electronics`;
-    const text = [
-      `Hello ${customerName},`,
-      '',
-      `Thank you for the opportunity to provide quote ${estimate.estimate_number} for ${vesselName}.`,
-      '',
-      `Service summary: ${serviceSummary}`,
-      `Quote total: ${total}.`,
-      '',
-      'The complete quote is attached as a PDF.',
-      '',
-      'Please reply to this email if you have any questions.',
-      '',
-      'Marine Consolidated Electronics',
-    ].join('\n');
+    const subject =
+      `Quote ${estimate.estimate_number} - ${vesselName} | Marine Consolidated Electronics`;
+    const serviceSummaryHtml = escapeHtml(serviceSummary).replace(/\n/g, '<br>');
     const html = `
-      <p>Hello ${escapeHtml(customerName)},</p>
-      <p>
-        Thank you for the opportunity to provide quote
-        <strong>${escapeHtml(estimate.estimate_number)}</strong>
-        for ${escapeHtml(vesselName)}.
-      </p>
-      <p><strong>Service summary:</strong> ${escapeHtml(serviceSummary)}</p>
-      <p><strong>Quote total:</strong> ${escapeHtml(total)}</p>
-      <p>The complete quote is attached as a PDF.</p>
-      <p>Please reply to this email if you have any questions.</p>
-      <p>Marine Consolidated Electronics</p>
+      <!doctype html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>${escapeHtml(subject)}</title>
+        </head>
+        <body style="margin:0;padding:0;background:#f3f6f8;color:#172331;font-family:Arial,Helvetica,sans-serif;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+            style="width:100%;background:#f3f6f8;">
+            <tr>
+              <td align="center" style="padding:28px 16px;">
+                <table role="presentation" width="620" cellspacing="0" cellpadding="0" border="0"
+                  style="width:100%;max-width:620px;background:#ffffff;border:1px solid #d9e0e7;border-radius:10px;overflow:hidden;">
+                  <tr>
+                    <td style="padding:20px 32px;background:#071827;color:#ffffff;font-size:16px;font-weight:700;letter-spacing:0.02em;">
+                      Marine Consolidated Electronics
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:32px;font-size:15px;line-height:1.65;">
+                      <p style="margin:0 0 18px;">Hello ${escapeHtml(customerName)},</p>
+                      <p style="margin:0 0 18px;">
+                        Thank you for the opportunity to provide this quote for your vessel,
+                        <strong>${escapeHtml(vesselName)}</strong>.
+                      </p>
+                      <p style="margin:0 0 18px;">
+                        Please find attached quote
+                        <strong>${escapeHtml(estimate.estimate_number)}</strong>
+                        for the following service:
+                      </p>
+                      <div style="margin:0 0 22px;padding:16px 18px;border-left:4px solid #d4af37;background:#f7f9fb;color:#26384a;">
+                        ${serviceSummaryHtml}
+                      </div>
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                        style="margin:0 0 22px;background:#071827;border-radius:8px;">
+                        <tr>
+                          <td style="padding:16px 18px;color:#b8cad9;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">
+                            Quote total
+                          </td>
+                          <td align="right" style="padding:16px 18px;color:#ffffff;font-size:22px;font-weight:700;">
+                            ${escapeHtml(total)}
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:0 0 18px;">
+                        This estimate is valid for
+                        <strong>${estimate.validity_days} days</strong>.
+                        If you have any questions or would like to approve the work, simply reply
+                        to this email and we will be happy to assist you.
+                      </p>
+                      <p style="margin:0 0 24px;">Best regards,</p>
+
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                        style="border-top:1px solid #d9e0e7;">
+                        <tr>
+                          <td style="padding-top:20px;font-size:14px;line-height:1.7;color:#34495e;">
+                            <strong style="display:block;color:#071827;font-size:16px;">Eduardo Casares</strong>
+                            <span style="display:block;margin-bottom:6px;color:#526579;">Marine Consolidated Electronics</span>
+                            <span style="display:block;">
+                              &#128222;
+                              <a href="tel:+17863572397" style="color:#173b56;text-decoration:none;">+1 (786) 357-2397</a>
+                            </span>
+                            <span style="display:block;">
+                              &#127760;
+                              <a href="https://marineconsolidatedelectronics.com"
+                                style="color:#173b56;text-decoration:none;">marineconsolidatedelectronics.com</a>
+                            </span>
+                            <span style="display:block;">
+                              &#128231;
+                              <a href="mailto:eduardo.casares@marineconsolidatedelectronics.com"
+                                style="color:#173b56;text-decoration:none;">eduardo.casares@marineconsolidatedelectronics.com</a>
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding:14px 24px;background:#eef2f5;color:#6b7c8d;font-size:11px;">
+                      Quote ${escapeHtml(estimate.estimate_number)} &middot; Marine Consolidated Electronics
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
     `;
 
     const transporter = nodemailer.createTransport({
@@ -242,7 +308,6 @@ Deno.serve(async (request) => {
       replyTo,
       subject,
       html,
-      text,
       attachments: [{
         filename: fileName,
         content: Buffer.from(pdfBytes),
