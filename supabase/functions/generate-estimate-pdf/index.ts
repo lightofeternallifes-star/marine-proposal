@@ -277,13 +277,19 @@ async function createEstimatePdf(estimate: EstimateRecord) {
     y -= 18;
   }
 
-  ensureSpace(142);
+  const totalsHeight = 64;
+  ensureSpace(totalsHeight);
   pageHasEstimateContent = true;
   y -= 8;
-  const totalsX = 365;
-  const drawTotal = (label: string, cents: number, emphasized = false) => {
+  const drawTotal = (
+    label: string,
+    cents: number,
+    labelX: number,
+    valueRightX: number,
+    emphasized = false,
+  ) => {
     page.drawText(label, {
-      x: totalsX,
+      x: labelX,
       y,
       size: emphasized ? 12 : 9,
       font: emphasized ? bold : regular,
@@ -291,22 +297,27 @@ async function createEstimatePdf(estimate: EstimateRecord) {
     });
     const value = formatMoney(cents, estimate.currency);
     page.drawText(value, {
-      x: pageWidth - margin - (emphasized ? bold : regular).widthOfTextAtSize(value, emphasized ? 12 : 9),
+      x: valueRightX
+        - (emphasized ? bold : regular).widthOfTextAtSize(value, emphasized ? 12 : 9),
       y,
       size: emphasized ? 12 : 9,
       font: emphasized ? bold : regular,
       color: emphasized ? red : navy,
     });
-    y -= emphasized ? 22 : 17;
   };
-  drawTotal('Materials', estimate.materials_subtotal_cents);
-  drawTotal('Labor', estimate.labor_subtotal_cents);
-  drawTotal('Subtotal', estimate.subtotal_cents);
-  drawTotal('Discount', -estimate.discount_cents);
-  drawTotal(`Tax (${estimate.tax_rate}%)`, estimate.tax_cents);
-  drawTotal('ESTIMATE TOTAL', estimate.total_cents, true);
+  drawTotal('Materials', estimate.materials_subtotal_cents, margin, 248);
+  drawTotal('Discount', -estimate.discount_cents, 330, pageWidth - margin);
+  y -= 17;
+  drawTotal('Labor', estimate.labor_subtotal_cents, margin, 248);
+  drawTotal(`Tax (${estimate.tax_rate}%)`, estimate.tax_cents, 330, pageWidth - margin);
+  y -= 17;
+  drawTotal('Subtotal', estimate.subtotal_cents, margin, 248);
+  drawTotal('ESTIMATE TOTAL', estimate.total_cents, 330, pageWidth - margin, true);
+  y -= 22;
 
   if (estimate.customer_notes) {
+    const noteLines = wrapText(estimate.customer_notes, regular, 10, pageWidth - margin * 2);
+    ensureSpace(34 + noteLines.length * 14 + 8);
     drawHeading('Notes');
     drawParagraph(estimate.customer_notes);
   }
