@@ -124,11 +124,13 @@ async function createEstimatePdf(estimate: EstimateRecord) {
   const pageWidth = 612;
   const pageHeight = 792;
   const margin = 48;
-  let page: PDFPage;
-  let y: number;
+  let page!: PDFPage;
+  let y!: number;
+  let pageHasEstimateContent = false;
 
   const addPage = () => {
     page = pdf.addPage([pageWidth, pageHeight]);
+    pageHasEstimateContent = false;
     page.drawRectangle({ x: 0, y: pageHeight - 24, width: pageWidth, height: 24, color: navy });
     page.drawText('MARINE CONSOLIDATED ELECTRONICS', {
       x: margin,
@@ -153,6 +155,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
 
   const drawHeading = (title: string) => {
     ensureSpace(34);
+    pageHasEstimateContent = true;
     page.drawRectangle({ x: margin, y: y - 19, width: pageWidth - margin * 2, height: 25, color: navy });
     page.drawText(title.toUpperCase(), {
       x: margin + 10,
@@ -168,6 +171,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
     if (!text) return;
     const lines = wrapText(text, regular, 10, pageWidth - margin * 2);
     ensureSpace(lines.length * 14 + 8);
+    pageHasEstimateContent = true;
     for (const line of lines) {
       page.drawText(line, { x: margin, y, size: 10, font: regular, color: navy });
       y -= 14;
@@ -177,12 +181,14 @@ async function createEstimatePdf(estimate: EstimateRecord) {
 
   const drawLabelValue = (label: string, value: string) => {
     ensureSpace(18);
+    pageHasEstimateContent = true;
     page.drawText(label, { x: margin, y, size: 9, font: bold, color: gray });
     page.drawText(value || '-', { x: margin + 118, y, size: 9, font: regular, color: navy });
     y -= 16;
   };
 
   addPage();
+  pageHasEstimateContent = true;
   page.drawText('ESTIMATE', { x: margin, y, size: 30, font: bold, color: red });
   page.drawText(`Generated ${new Date().toLocaleDateString('en-US')}`, {
     x: pageWidth - margin - 130,
@@ -219,6 +225,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
 
   const drawTableHeader = (columns: Array<{ label: string; x: number }>) => {
     ensureSpace(25);
+    pageHasEstimateContent = true;
     page.drawRectangle({ x: margin, y: y - 7, width: pageWidth - margin * 2, height: 20, color: light });
     for (const column of columns) {
       page.drawText(column.label, { x: column.x, y, size: 8, font: bold, color: navy });
@@ -235,6 +242,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
   ]);
   for (const item of estimate.estimate_materials.sort((a, b) => a.sort_order - b.sort_order)) {
     ensureSpace(20);
+    pageHasEstimateContent = true;
     const description = wrapText(item.description, regular, 8, 250)[0];
     page.drawText(description, { x: margin + 4, y, size: 8, font: regular, color: navy });
     page.drawText(`${item.quantity} ${item.unit}`, { x: 330, y, size: 8, font: regular, color: navy });
@@ -256,6 +264,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
   ]);
   for (const item of estimate.estimate_labor.sort((a, b) => a.sort_order - b.sort_order)) {
     ensureSpace(20);
+    pageHasEstimateContent = true;
     const description = wrapText(item.description, regular, 8, 275)[0];
     page.drawText(description, { x: margin + 4, y, size: 8, font: regular, color: navy });
     page.drawText(String(item.hours), { x: 360, y, size: 8, font: regular, color: navy });
@@ -269,6 +278,7 @@ async function createEstimatePdf(estimate: EstimateRecord) {
   }
 
   ensureSpace(142);
+  pageHasEstimateContent = true;
   y -= 8;
   const totalsX = 365;
   const drawTotal = (label: string, cents: number, emphasized = false) => {
@@ -301,6 +311,10 @@ async function createEstimatePdf(estimate: EstimateRecord) {
     drawParagraph(estimate.customer_notes);
   }
 
+  if (!pageHasEstimateContent && pdf.getPageCount() > 1) {
+    pdf.removePage(pdf.getPageCount() - 1);
+    page = pdf.getPages().at(-1)!;
+  }
   page.drawText(`This estimate is valid for ${estimate.validity_days} days from the generated date.`, {
     x: margin,
     y: 34,
