@@ -38,6 +38,7 @@
           <a class="button link" href="./estimates.html">Back to estimates</a>
           <a id="preview-estimate" class="button secondary-light" href="#" hidden>Preview</a>
           <a id="download-pdf" class="button secondary-light" href="#" target="_blank" rel="noopener" hidden>Download PDF</a>
+          <button id="send-estimate-email" class="button primary" type="button" hidden>Send Email</button>
           <button id="generate-pdf" class="button secondary-light" type="button">Generate PDF</button>
           <button id="save-estimate" class="button primary" type="button">Save draft</button>
         </div>
@@ -132,6 +133,18 @@
               <div><dt>Tax</dt><dd id="tax-total">$0.00</dd></div>
               <div class="grand-total"><dt>Total</dt><dd id="grand-total">$0.00</dd></div>
             </dl>
+          </div>
+        </section>
+
+        <section id="email-delivery-panel" class="panel editor-panel" hidden>
+          <div class="panel-header">
+            <div>
+              <h2>Email history</h2>
+              <p id="email-delivery-recipient">Generate the current PDF before sending.</p>
+            </div>
+          </div>
+          <div id="email-delivery-list" class="delivery-history">
+            <p class="empty-state">No delivery attempts yet.</p>
           </div>
         </section>
 

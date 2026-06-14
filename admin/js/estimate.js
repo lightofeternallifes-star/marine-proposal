@@ -15,10 +15,17 @@ const customerSelect = form.elements.customerId;
 const vesselSelect = form.elements.vesselId;
 const materialsBody = document.querySelector('#materials-body');
 const laborBody = document.querySelector('#labor-body');
+const downloadLink = document.querySelector('#download-pdf');
+const sendButton = document.querySelector('#send-estimate-email');
+const deliveryPanel = document.querySelector('#email-delivery-panel');
+const deliveryRecipient = document.querySelector('#email-delivery-recipient');
+const deliveryList = document.querySelector('#email-delivery-list');
 const params = new URLSearchParams(window.location.search);
 let estimateId = params.get('id');
 let customers = [];
 let vessels = [];
+let currentVersion = 0;
+let hasCurrentPdf = false;
 
 function updatePreviewLink() {
   const link = document.querySelector('#preview-estimate');
@@ -87,6 +94,7 @@ function addLine(type, data = {}) {
 
   row.querySelectorAll('input').forEach((input) => input.addEventListener('input', updateTotals));
   row.querySelector('.remove-line').addEventListener('click', () => {
+    invalidateGeneratedOutput();
     row.remove();
     updateTotals();
   });
@@ -98,6 +106,30 @@ function customerLabel(customer) {
   return customer.company_name
     ? `${customer.contact_name} - ${customer.company_name}`
     : customer.contact_name;
+}
+
+function selectedCustomerEmail() {
+  return customers.find((customer) => customer.id === customerSelect.value)?.email?.trim() || '';
+}
+
+function setCurrentPdfAvailable(available) {
+  hasCurrentPdf = available;
+  downloadLink.hidden = !available;
+  sendButton.hidden = !available;
+  deliveryPanel.hidden = !available;
+  if (available) {
+    const email = selectedCustomerEmail();
+    deliveryRecipient.textContent = email
+      ? `Quote delivery to ${email}`
+      : 'Add a valid email to the selected customer before sending.';
+    sendButton.disabled = !email;
+  }
+}
+
+function invalidateGeneratedOutput() {
+  if (!hasCurrentPdf) return;
+  setCurrentPdfAvailable(false);
+  downloadLink.removeAttribute('href');
 }
 
 function populateCustomers() {
@@ -123,7 +155,11 @@ function populateVessels(selectedId = '') {
 
 async function loadDirectories() {
   const [customerResult, vesselResult] = await Promise.all([
-    supabase.from('customers').select('id, contact_name, company_name').is('archived_at', null).order('contact_name'),
+    supabase
+      .from('customers')
+      .select('id, contact_name, company_name, email')
+      .is('archived_at', null)
+      .order('contact_name'),
     supabase
       .from('vessels')
       .select('id, customer_id, vessel_name, manufacturer, model, registration_number')
@@ -156,6 +192,7 @@ async function loadEstimate() {
 
   document.querySelector('#estimate-title').textContent = data.estimate_number;
   document.querySelector('#estimate-status').textContent = `Last updated ${new Date(data.updated_at).toLocaleString()}`;
+  currentVersion = data.current_version;
   customerSelect.value = data.customer_id;
   populateVessels(data.vessel_id);
   form.elements.jobDescription.value = data.job_description ?? '';
@@ -189,8 +226,9 @@ async function loadEstimate() {
   updateTotals();
   updatePreviewLink();
 
-  if (data.status === 'generated') {
+  if (data.status === 'generated' || data.status === 'sent') {
     await loadCurrentPdf(data.current_version);
+    await loadDeliveries();
   }
 }
 
@@ -201,16 +239,65 @@ async function loadCurrentPdf(versionNumber) {
     .eq('estimate_id', estimateId)
     .eq('version_number', versionNumber)
     .maybeSingle();
-  if (error || !data) return;
+  if (error || !data) {
+    setCurrentPdfAvailable(false);
+    return false;
+  }
 
   const { data: signedData } = await supabase.storage
     .from('estimate-pdfs')
     .createSignedUrl(data.storage_path, 600);
   if (signedData?.signedUrl) {
-    const link = document.querySelector('#download-pdf');
-    link.href = signedData.signedUrl;
-    link.hidden = false;
+    downloadLink.href = signedData.signedUrl;
+    setCurrentPdfAvailable(true);
+    return true;
   }
+  setCurrentPdfAvailable(false);
+  return false;
+}
+
+function renderDeliveries(deliveries) {
+  deliveryList.replaceChildren();
+  if (!deliveries.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'No delivery attempts yet.';
+    deliveryList.append(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'data-table';
+  table.innerHTML = `
+    <thead><tr><th>Recipient</th><th>Status</th><th>Requested</th></tr></thead>
+    <tbody></tbody>
+  `;
+  const body = table.querySelector('tbody');
+  for (const delivery of deliveries) {
+    const row = document.createElement('tr');
+    const recipient = document.createElement('td');
+    recipient.textContent = delivery.recipient_email;
+    const statusCell = document.createElement('td');
+    const status = document.createElement('span');
+    status.className = `delivery-status ${delivery.status}`;
+    status.textContent = delivery.status;
+    statusCell.append(status);
+    const requested = document.createElement('td');
+    requested.textContent = new Date(delivery.queued_at).toLocaleString();
+    row.append(recipient, statusCell, requested);
+    body.append(row);
+  }
+  deliveryList.append(table);
+}
+
+async function loadDeliveries() {
+  if (!estimateId) return;
+  const { data, error } = await supabase
+    .from('estimate_deliveries')
+    .select('id, recipient_email, status, queued_at, sent_at, failed_at')
+    .eq('estimate_id', estimateId)
+    .order('created_at', { ascending: false });
+  if (!error) renderDeliveries(data);
 }
 
 async function saveEstimate() {
@@ -256,7 +343,10 @@ async function saveEstimate() {
   });
   if (error) throw error;
 
+  setCurrentPdfAvailable(false);
+  downloadLink.removeAttribute('href');
   estimateId = data.id;
+  currentVersion = data.current_version;
   document.querySelector('#estimate-title').textContent = data.estimate_number;
   window.history.replaceState({}, '', `./estimate.html?id=${estimateId}`);
   updatePreviewLink();
@@ -266,9 +356,19 @@ async function saveEstimate() {
   return data;
 }
 
-customerSelect.addEventListener('change', () => populateVessels());
-document.querySelector('#add-material').addEventListener('click', () => addLine('material'));
-document.querySelector('#add-labor').addEventListener('click', () => addLine('labor'));
+customerSelect.addEventListener('change', () => {
+  populateVessels();
+  invalidateGeneratedOutput();
+});
+vesselSelect.addEventListener('change', invalidateGeneratedOutput);
+document.querySelector('#add-material').addEventListener('click', () => {
+  invalidateGeneratedOutput();
+  addLine('material');
+});
+document.querySelector('#add-labor').addEventListener('click', () => {
+  invalidateGeneratedOutput();
+  addLine('labor');
+});
 form.elements.discount.addEventListener('input', updateTotals);
 form.elements.taxRate.addEventListener('input', updateTotals);
 document.querySelector('#save-estimate').addEventListener('click', async () => {
@@ -286,9 +386,8 @@ document.querySelector('#save-estimate').addEventListener('click', async () => {
 
 document.querySelector('#generate-pdf').addEventListener('click', async () => {
   const button = document.querySelector('#generate-pdf');
-  const link = document.querySelector('#download-pdf');
   button.disabled = true;
-  link.hidden = true;
+  setCurrentPdfAvailable(false);
   try {
     const savedEstimate = await saveEstimate();
     if (!savedEstimate) return;
@@ -298,8 +397,10 @@ document.querySelector('#generate-pdf').addEventListener('click', async () => {
     if (error || !data?.signedUrl) {
       throw error ?? new Error('PDF URL missing');
     }
-    link.href = data.signedUrl;
-    link.hidden = false;
+    currentVersion = data.version;
+    downloadLink.href = data.signedUrl;
+    setCurrentPdfAvailable(true);
+    await loadDeliveries();
     setFormMessage(message, 'PDF generated. Use Download PDF to open it.');
     document.querySelector('#estimate-status').textContent =
       `Version ${data.version} PDF generated ${new Date().toLocaleString()}`;
@@ -310,6 +411,42 @@ document.querySelector('#generate-pdf').addEventListener('click', async () => {
     button.disabled = false;
   }
 });
+
+sendButton.addEventListener('click', async () => {
+  message.hidden = true;
+  const recipientEmail = selectedCustomerEmail();
+  if (!estimateId || !hasCurrentPdf || !recipientEmail) {
+    setFormMessage(message, 'Generate the current PDF and confirm the customer email before sending.', true);
+    return;
+  }
+  if (!window.confirm(`Send the current estimate PDF to ${recipientEmail}?`)) {
+    return;
+  }
+
+  sendButton.disabled = true;
+  sendButton.textContent = 'Sending...';
+  setFormMessage(message, `Sending quote to ${recipientEmail}...`);
+  try {
+    const { data, error } = await supabase.functions.invoke('send-estimate-email', {
+      body: { estimateId, recipientEmail },
+    });
+    if (error || data?.status !== 'sent') {
+      throw error ?? new Error('Email delivery failed');
+    }
+    setFormMessage(message, `Quote sent successfully to ${data.recipientEmail}.`);
+    document.querySelector('#estimate-status').textContent =
+      `Version ${currentVersion} · sent · ${new Date().toLocaleString()}`;
+  } catch (error) {
+    console.error(error);
+    setFormMessage(message, 'Unable to send the quote. Review the email history and try again.', true);
+  } finally {
+    await loadDeliveries();
+    sendButton.disabled = !selectedCustomerEmail();
+    sendButton.textContent = 'Send Email';
+  }
+});
+
+form.addEventListener('input', invalidateGeneratedOutput);
 
 try {
   await loadDirectories();
