@@ -234,7 +234,7 @@ deliveryForm.addEventListener('submit', async (event) => {
   }
 
   sendButton.disabled = true;
-  sendButton.textContent = 'Sending...';
+  sendButton.textContent = 'Sending Quote...';
   setFormMessage(deliveryMessage, 'Email queued for delivery.');
   try {
     const { data, error } = await supabase.functions.invoke('send-estimate-email', {
@@ -252,7 +252,7 @@ deliveryForm.addEventListener('submit', async (event) => {
   } finally {
     await loadDeliveries();
     sendButton.disabled = false;
-    sendButton.textContent = 'Send Email';
+    sendButton.textContent = 'Send Quote';
   }
 });
 

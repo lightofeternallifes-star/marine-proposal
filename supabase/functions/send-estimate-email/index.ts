@@ -1,4 +1,6 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import nodemailer from 'nodemailer';
+import { Buffer } from 'node:buffer';
+import { createClient } from 'supabase';
 
 const allowedOrigins = new Set([
   'https://marineconsolidatedelectronics.com',
@@ -36,16 +38,6 @@ function escapeHtml(value: string) {
     .replaceAll("'", '&#039;');
 }
 
-function bytesToBase64(bytes: Uint8Array) {
-  const chunkSize = 3 * 8192;
-  let encoded = '';
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length));
-    encoded += btoa(String.fromCharCode(...chunk));
-  }
-  return encoded;
-}
-
 function safeErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   return message.slice(0, 500);
@@ -62,8 +54,8 @@ Deno.serve(async (request) => {
   }
 
   let deliveryId: string | null = null;
-  let supabase: ReturnType<typeof createClient> | null = null;
-  let admin: ReturnType<typeof createClient> | null = null;
+  let supabase: any = null;
+  let admin: any = null;
 
   try {
     const authorization = request.headers.get('authorization');
@@ -102,13 +94,13 @@ Deno.serve(async (request) => {
 
     const body = await request.json();
     const estimateId = typeof body?.estimateId === 'string' ? body.estimateId : '';
-    const recipientEmail = typeof body?.recipientEmail === 'string'
+    const confirmedRecipientEmail = typeof body?.recipientEmail === 'string'
       ? body.recipientEmail.trim().toLowerCase()
       : '';
     if (!estimateId) {
       return jsonResponse({ error: 'estimateId is required' }, 400, headers);
     }
-    if (!emailPattern.test(recipientEmail) || recipientEmail.length > 254) {
+    if (!emailPattern.test(confirmedRecipientEmail) || confirmedRecipientEmail.length > 254) {
       return jsonResponse({ error: 'A valid recipient email is required' }, 400, headers);
     }
 
@@ -116,13 +108,21 @@ Deno.serve(async (request) => {
       .from('estimates')
       .select(`
         id, estimate_number, current_version, currency, total_cents,
-        customers(contact_name, company_name),
+        job_description, recommended_work,
+        customers(contact_name, company_name, email),
         vessels(vessel_name, manufacturer, model, registration_number)
       `)
       .eq('id', estimateId)
       .single();
     if (estimateError || !estimate) {
       return jsonResponse({ error: 'Estimate not found' }, 404, headers);
+    }
+    const recipientEmail = estimate.customers.email?.trim().toLowerCase() || '';
+    if (!emailPattern.test(recipientEmail) || recipientEmail.length > 254) {
+      return jsonResponse({ error: 'The customer does not have a valid email address' }, 409, headers);
+    }
+    if (confirmedRecipientEmail !== recipientEmail) {
+      return jsonResponse({ error: 'Recipient email no longer matches the customer record' }, 409, headers);
     }
 
     const { data: document, error: documentError } = await supabase
@@ -142,7 +142,7 @@ Deno.serve(async (request) => {
         document_id: document.id,
         recipient_email: recipientEmail,
         status: 'queued',
-        provider: 'resend',
+        provider: 'zoho_smtp',
         requested_by: userData.user.id,
       })
       .select('id')
@@ -150,13 +150,28 @@ Deno.serve(async (request) => {
     if (deliveryError || !delivery) throw deliveryError;
     deliveryId = delivery.id;
 
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const fromEmail = Deno.env.get('MARINEQUOTE_FROM_EMAIL');
-    const replyTo = Deno.env.get('MARINEQUOTE_REPLY_TO') || undefined;
-    if (!resendApiKey || !fromEmail) {
+    const smtpHost = Deno.env.get('SMTP_HOST');
+    const smtpPort = Number(Deno.env.get('SMTP_PORT') || '465');
+    const smtpUser = Deno.env.get('SMTP_USER');
+    const smtpPassword = Deno.env.get('SMTP_PASSWORD');
+    const smtpSecureValue = Deno.env.get('SMTP_SECURE');
+    const smtpSecure = smtpSecureValue
+      ? smtpSecureValue.toLowerCase() === 'true'
+      : smtpPort === 465;
+    const fromEmail = Deno.env.get('SMTP_FROM_EMAIL') || smtpUser;
+    const fromName = Deno.env.get('SMTP_FROM_NAME') || 'Marine Consolidated Electronics';
+    const replyTo = Deno.env.get('SMTP_REPLY_TO') || fromEmail;
+    if (
+      !smtpHost
+      || !Number.isInteger(smtpPort)
+      || smtpPort < 1
+      || smtpPort > 65535
+      || !smtpUser
+      || !smtpPassword
+      || !fromEmail
+    ) {
       throw new Error('Email provider configuration is incomplete');
     }
-
     const { data: pdfBlob, error: downloadError } = await supabase.storage
       .from('estimate-pdfs')
       .download(document.storage_path);
@@ -173,12 +188,19 @@ Deno.serve(async (request) => {
       currency: estimate.currency,
     }).format(estimate.total_cents / 100);
     const fileName = `${estimate.estimate_number.replace(/[^A-Za-z0-9._-]+/g, '-')}.pdf`;
-    const subject = `Marine Consolidated Electronics Estimate ${estimate.estimate_number}`;
+    const serviceSummary = estimate.recommended_work
+      || estimate.job_description
+      || 'Marine electrical services';
+    const subject = `Quote ${estimate.estimate_number} from Marine Consolidated Electronics`;
     const text = [
       `Hello ${customerName},`,
       '',
-      `Attached is estimate ${estimate.estimate_number} for ${vesselName}.`,
-      `Estimate total: ${total}.`,
+      `Thank you for the opportunity to provide quote ${estimate.estimate_number} for ${vesselName}.`,
+      '',
+      `Service summary: ${serviceSummary}`,
+      `Quote total: ${total}.`,
+      '',
+      'The complete quote is attached as a PDF.',
       '',
       'Please reply to this email if you have any questions.',
       '',
@@ -187,49 +209,59 @@ Deno.serve(async (request) => {
     const html = `
       <p>Hello ${escapeHtml(customerName)},</p>
       <p>
-        Attached is estimate <strong>${escapeHtml(estimate.estimate_number)}</strong>
+        Thank you for the opportunity to provide quote
+        <strong>${escapeHtml(estimate.estimate_number)}</strong>
         for ${escapeHtml(vesselName)}.
       </p>
-      <p>Estimate total: <strong>${escapeHtml(total)}</strong>.</p>
+      <p><strong>Service summary:</strong> ${escapeHtml(serviceSummary)}</p>
+      <p><strong>Quote total:</strong> ${escapeHtml(total)}</p>
+      <p>The complete quote is attached as a PDF.</p>
       <p>Please reply to this email if you have any questions.</p>
       <p>Marine Consolidated Electronics</p>
     `;
 
-    const resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-        'Idempotency-Key': deliveryId,
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpSecure,
+      requireTLS: !smtpSecure,
+      auth: {
+        user: smtpUser,
+        pass: smtpPassword,
       },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: [recipientEmail],
-        subject,
-        html,
-        text,
-        ...(replyTo ? { reply_to: replyTo } : {}),
-        attachments: [{
-          filename: fileName,
-          content: bytesToBase64(pdfBytes),
-        }],
-        tags: [
-          { name: 'estimate_number', value: estimate.estimate_number.replace(/[^A-Za-z0-9_-]/g, '-') },
-          { name: 'delivery_id', value: deliveryId },
-        ],
-      }),
+      tls: {
+        minVersion: 'TLSv1.2',
+      },
     });
-    const resendBody = await resendResponse.json();
-    if (!resendResponse.ok || typeof resendBody?.id !== 'string') {
-      throw new Error(resendBody?.message || `Email provider returned HTTP ${resendResponse.status}`);
-    }
+    const sendResult = await transporter.sendMail({
+      from: {
+        name: fromName,
+        address: fromEmail,
+      },
+      to: recipientEmail,
+      replyTo,
+      subject,
+      html,
+      text,
+      attachments: [{
+        filename: fileName,
+        content: Buffer.from(pdfBytes),
+        contentType: 'application/pdf',
+      }],
+      headers: {
+        'X-MarineQuote-Delivery-ID': deliveryId,
+        'X-MarineQuote-Estimate': estimate.estimate_number,
+      },
+    });
+    const providerMessageId = String(sendResult.messageId || '');
+    if (!providerMessageId) throw new Error('SMTP provider did not return a message ID');
 
     const sentAt = new Date().toISOString();
     const { error: sentError } = await admin
       .from('estimate_deliveries')
       .update({
         status: 'sent',
-        provider_message_id: resendBody.id,
+        provider_message_id: providerMessageId,
         sent_at: sentAt,
         failed_at: null,
         error_message: null,
@@ -254,10 +286,10 @@ Deno.serve(async (request) => {
       deliveryId,
       status: 'sent',
       recipientEmail,
-      providerMessageId: resendBody.id,
+      providerMessageId,
     }, 200, headers);
   } catch (error) {
-    console.error('send-estimate-email failed', error);
+    console.error('send-estimate-email failed:', safeErrorMessage(error));
     if (admin && deliveryId) {
       const { error: failedUpdateError } = await admin
         .from('estimate_deliveries')

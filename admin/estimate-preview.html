@@ -122,21 +122,22 @@
         <div class="panel-header">
           <div>
             <h2>Email delivery</h2>
-            <p>Confirm the recipient before sending the current PDF attachment.</p>
+            <p>Confirm the customer's saved email before sending the current PDF attachment.</p>
           </div>
         </div>
         <form id="email-delivery-form" class="delivery-form">
-          <label for="delivery-recipient">Recipient email
+          <label for="delivery-recipient">Customer email
             <input
               id="delivery-recipient"
               name="recipientEmail"
               type="email"
               maxlength="254"
               autocomplete="email"
+              readonly
               required
             >
           </label>
-          <button id="send-estimate-email" class="button primary" type="submit">Send Email</button>
+          <button id="send-estimate-email" class="button primary" type="submit">Send Quote</button>
         </form>
         <p id="delivery-message" class="form-message" role="status" hidden></p>
         <div class="delivery-history">
