@@ -194,6 +194,9 @@ Deno.serve(async (request) => {
     const subject =
       `Quote ${estimate.estimate_number} - ${vesselName} | Marine Consolidated Electronics`;
     const serviceSummaryHtml = escapeHtml(serviceSummary).replace(/\n/g, '<br>');
+    const estimatePreviewUrl =
+      `https://marineconsolidatedelectronics.com/admin/estimate-preview.html?id=${encodeURIComponent(estimate.id)}`;
+    const logoBytes = await Deno.readFile(new URL('./mce-logo.png', import.meta.url));
     const html = `
       <!doctype html>
       <html lang="en">
@@ -201,41 +204,72 @@ Deno.serve(async (request) => {
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <title>${escapeHtml(subject)}</title>
+          <style>
+            @media only screen and (max-width: 640px) {
+              .email-shell { padding: 12px 8px !important; }
+              .email-card { width: 100% !important; border-radius: 6px !important; }
+              .email-header { padding: 18px 20px !important; }
+              .email-body { padding: 24px 20px !important; }
+              .brand-name { font-size: 14px !important; }
+              .total-label { display: block !important; width: 100% !important; padding: 16px 18px 4px !important; }
+              .total-value { display: block !important; width: 100% !important; padding: 0 18px 16px !important; text-align: left !important; }
+              .cta-link { display: block !important; width: auto !important; }
+              .footer-cell { padding: 18px 20px !important; }
+            }
+          </style>
         </head>
         <body style="margin:0;padding:0;background:#f3f6f8;color:#172331;font-family:Arial,Helvetica,sans-serif;">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
             style="width:100%;background:#f3f6f8;">
             <tr>
-              <td align="center" style="padding:28px 16px;">
-                <table role="presentation" width="620" cellspacing="0" cellpadding="0" border="0"
+              <td class="email-shell" align="center" style="padding:28px 16px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                  class="email-card"
                   style="width:100%;max-width:620px;background:#ffffff;border:1px solid #d9e0e7;border-radius:10px;overflow:hidden;">
                   <tr>
-                    <td style="padding:20px 32px;background:#071827;color:#ffffff;font-size:16px;font-weight:700;letter-spacing:0.02em;">
-                      Marine Consolidated Electronics
+                    <td class="email-header" style="padding:20px 32px;background:#071827;">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td width="54" valign="middle" style="width:54px;padding-right:14px;">
+                            <img src="cid:mce-logo" width="48" height="48"
+                              alt="Marine Consolidated Electronics"
+                              style="display:block;width:48px;height:48px;border:0;">
+                          </td>
+                          <td valign="middle">
+                            <strong class="brand-name"
+                              style="display:block;color:#ffffff;font-size:16px;line-height:1.25;letter-spacing:0.04em;">
+                              MARINE CONSOLIDATED
+                            </strong>
+                            <span style="display:block;margin-top:3px;color:#D4AF37;font-size:10px;line-height:1.2;letter-spacing:0.22em;">
+                              ELECTRONICS
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding:32px;font-size:15px;line-height:1.65;">
+                    <td class="email-body" style="padding:32px;font-size:15px;line-height:1.65;">
                       <p style="margin:0 0 18px;">Hello ${escapeHtml(customerName)},</p>
                       <p style="margin:0 0 18px;">
                         Thank you for the opportunity to provide this quote for your vessel,
                         <strong>${escapeHtml(vesselName)}</strong>.
                       </p>
                       <p style="margin:0 0 18px;">
-                        Please find attached quote
-                        <strong>${escapeHtml(estimate.estimate_number)}</strong>
-                        for the following service:
+                        We are pleased to provide the following estimate for your review.
                       </p>
                       <div style="margin:0 0 22px;padding:16px 18px;border-left:4px solid #d4af37;background:#f7f9fb;color:#26384a;">
                         ${serviceSummaryHtml}
                       </div>
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-                        style="margin:0 0 22px;background:#071827;border-radius:8px;">
+                        style="margin:0 0 22px;background:#071827;border:1px solid #D4AF37;border-radius:8px;box-shadow:0 8px 20px rgba(7,24,39,0.16);">
                         <tr>
-                          <td style="padding:16px 18px;color:#b8cad9;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">
+                          <td class="total-label"
+                            style="padding:18px 20px;color:#D4AF37;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">
                             Quote total
                           </td>
-                          <td align="right" style="padding:16px 18px;color:#ffffff;font-size:22px;font-weight:700;">
+                          <td class="total-value" align="right"
+                            style="padding:18px 20px;color:#ffffff;font-size:24px;font-weight:700;">
                             ${escapeHtml(total)}
                           </td>
                         </tr>
@@ -246,6 +280,17 @@ Deno.serve(async (request) => {
                         If you have any questions or would like to approve the work, simply reply
                         to this email and we will be happy to assist you.
                       </p>
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0"
+                        style="margin:0 0 26px;">
+                        <tr>
+                          <td align="center" bgcolor="#D4AF37" style="border-radius:6px;">
+                            <a class="cta-link" href="${escapeHtml(estimatePreviewUrl)}"
+                              style="display:inline-block;padding:13px 24px;color:#071827;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;">
+                              Approve Estimate
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
                       <p style="margin:0 0 24px;">Best regards,</p>
 
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0"
@@ -261,12 +306,12 @@ Deno.serve(async (request) => {
                             <span style="display:block;">
                               &#127760;
                               <a href="https://marineconsolidatedelectronics.com"
-                                style="color:#173b56;text-decoration:none;">marineconsolidatedelectronics.com</a>
+                                style="color:#173b56;text-decoration:none;word-break:break-word;">marineconsolidatedelectronics.com</a>
                             </span>
                             <span style="display:block;">
                               &#128231;
                               <a href="mailto:eduardo.casares@marineconsolidatedelectronics.com"
-                                style="color:#173b56;text-decoration:none;">eduardo.casares@marineconsolidatedelectronics.com</a>
+                                style="color:#173b56;text-decoration:none;word-break:break-all;">eduardo.casares@marineconsolidatedelectronics.com</a>
                             </span>
                           </td>
                         </tr>
@@ -274,8 +319,16 @@ Deno.serve(async (request) => {
                     </td>
                   </tr>
                   <tr>
-                    <td align="center" style="padding:14px 24px;background:#eef2f5;color:#6b7c8d;font-size:11px;">
-                      Quote ${escapeHtml(estimate.estimate_number)} &middot; Marine Consolidated Electronics
+                    <td class="footer-cell" align="center"
+                      style="padding:18px 24px;background:#071827;color:#aebdca;font-size:11px;line-height:1.55;">
+                      <strong style="display:block;color:#ffffff;font-size:12px;">Marine Consolidated Electronics</strong>
+                      <span style="display:block;color:#D4AF37;">Licensed Marine Electrical &amp; Electronics Services</span>
+                      <span style="display:block;margin-top:8px;">
+                        This estimate is confidential and intended solely for the recipient.
+                      </span>
+                      <span style="display:block;margin-top:8px;color:#7f93a5;">
+                        Quote ${escapeHtml(estimate.estimate_number)}
+                      </span>
                     </td>
                   </tr>
                 </table>
@@ -312,6 +365,11 @@ Deno.serve(async (request) => {
         filename: fileName,
         content: Buffer.from(pdfBytes),
         contentType: 'application/pdf',
+      }, {
+        filename: 'mce-logo.png',
+        content: Buffer.from(logoBytes),
+        contentType: 'image/png',
+        cid: 'mce-logo',
       }],
       headers: {
         'X-MarineQuote-Delivery-ID': deliveryId,
