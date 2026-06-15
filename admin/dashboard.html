@@ -20,6 +20,7 @@
 
       <nav aria-label="Primary navigation">
         <a class="nav-item active" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./pipeline.html">Pipeline</a>
         <a class="nav-item" href="./customers.html">Customers</a>
         <a class="nav-item" href="./vessels.html">Vessels</a>
         <a class="nav-item" href="./estimates.html">Estimates</a>
@@ -59,6 +60,45 @@
           <span>Customers</span>
           <strong id="customer-count">0</strong>
         </article>
+      </section>
+
+      <section class="metric-grid pipeline-metrics" aria-label="Pipeline summary">
+        <article class="metric-card">
+          <span>Leads</span>
+          <strong id="dashboard-leads">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Appointments</span>
+          <strong id="dashboard-appointments">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Estimates Sent</span>
+          <strong id="dashboard-estimates-sent">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Won Deals</span>
+          <strong id="dashboard-won">0</strong>
+        </article>
+        <article class="metric-card">
+          <span>Lost Deals</span>
+          <strong id="dashboard-lost">0</strong>
+        </article>
+      </section>
+
+      <section class="panel pipeline-summary-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Pipeline Summary</h2>
+            <p>Lead count, conversion rate, and open opportunities.</p>
+          </div>
+          <a href="./pipeline.html">Open pipeline</a>
+        </div>
+        <div class="summary-grid">
+          <div><span>Lead Count</span><strong id="dashboard-lead-count">0</strong></div>
+          <div><span>Conversion Rate</span><strong id="dashboard-conversion-rate">0%</strong></div>
+          <div><span>Open Opportunities</span><strong id="dashboard-open-opportunities">0</strong></div>
+          <div><span>Overall Close Rate</span><strong id="dashboard-close-rate">0%</strong></div>
+        </div>
       </section>
 
       <section class="panel">

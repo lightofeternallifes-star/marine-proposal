@@ -9,7 +9,18 @@ const editorTitle = document.querySelector('#customer-editor-title');
 const form = document.querySelector('#customer-form');
 const formMessage = document.querySelector('#customer-form-message');
 const archiveButton = document.querySelector('#archive-customer');
+const crmSummary = document.querySelector('#customer-crm-summary');
+const params = new URLSearchParams(window.location.search);
 let customers = [];
+
+const stageLabels = {
+  lead: 'Lead',
+  qualified: 'Qualified',
+  appointment_scheduled: 'Appointment Scheduled',
+  estimate_sent: 'Estimate Sent',
+  won: 'Won',
+  lost: 'Lost',
+};
 
 function customerLabel(customer) {
   return customer.company_name
@@ -88,6 +99,47 @@ async function loadCustomers() {
   renderCustomers();
 }
 
+async function loadCustomerCrmSummary(customerId) {
+  if (!customerId) {
+    crmSummary.hidden = true;
+    return;
+  }
+
+  const [pipelineResult, estimatesResult] = await Promise.all([
+    supabase
+      .from('sales_pipeline')
+      .select('stage, updated_at')
+      .eq('customer_id', customerId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from('estimates')
+      .select('estimate_number, status, updated_at')
+      .eq('customer_id', customerId)
+      .order('updated_at', { ascending: false }),
+  ]);
+
+  if (pipelineResult.error) {
+    console.warn('[Customers] Pipeline summary unavailable:', pipelineResult.error.message);
+  }
+  if (estimatesResult.error) {
+    console.warn('[Customers] Estimate summary unavailable:', estimatesResult.error.message);
+  }
+
+  const pipelineStage = pipelineResult.data?.stage;
+  const estimates = estimatesResult.data ?? [];
+  const lastEstimate = estimates[0];
+  document.querySelector('#customer-pipeline-stage').textContent =
+    pipelineStage ? stageLabels[pipelineStage] : 'No pipeline record';
+  document.querySelector('#customer-last-estimate').textContent =
+    lastEstimate ? `${lastEstimate.estimate_number} · ${lastEstimate.status}` : 'No estimates';
+  document.querySelector('#customer-total-estimates').textContent = estimates.length;
+  document.querySelector('#customer-crm-status').textContent =
+    pipelineStage ? stageLabels[pipelineStage] : (estimates.length ? 'Estimate customer' : 'Customer only');
+  crmSummary.hidden = false;
+}
+
 function openEditor(customer = null) {
   form.reset();
   formMessage.hidden = true;
@@ -108,9 +160,11 @@ function openEditor(customer = null) {
     form.elements.postalCode.value = address.postal_code ?? '';
     form.elements.country.value = address.country ?? '';
     form.elements.notes.value = customer.notes ?? '';
+    loadCustomerCrmSummary(customer.id);
   } else {
     form.elements.id.value = '';
     form.elements.country.value = 'United States';
+    crmSummary.hidden = true;
   }
 
   editor.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -176,3 +230,9 @@ document.querySelector('#new-customer').addEventListener('click', () => openEdit
 document.querySelector('#close-customer-editor').addEventListener('click', () => { editor.hidden = true; });
 search.addEventListener('input', renderCustomers);
 await loadCustomers();
+
+const requestedCustomerId = params.get('customerId');
+if (requestedCustomerId) {
+  const customer = customers.find((item) => item.id === requestedCustomerId);
+  if (customer) openEditor(customer);
+}

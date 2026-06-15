@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pipeline | MarineQuote AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;750;850&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>AI Admin</small></span>
+      </a>
+      <nav>
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item active" href="./pipeline.html">Pipeline</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content pipeline-workspace">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">CRM Pipeline</p>
+          <h1>Sales Pipeline</h1>
+          <p>Track leads, appointments, sent estimates, won work, and lost opportunities.</p>
+        </div>
+        <button id="new-opportunity" class="button primary" type="button">New opportunity</button>
+      </header>
+
+      <section class="metric-grid pipeline-metrics">
+        <article class="metric-card"><span>Leads</span><strong id="pipeline-leads">0</strong></article>
+        <article class="metric-card"><span>Appointments</span><strong id="pipeline-appointments">0</strong></article>
+        <article class="metric-card"><span>Estimates Sent</span><strong id="pipeline-estimates-sent">0</strong></article>
+        <article class="metric-card"><span>Won Deals</span><strong id="pipeline-won">0</strong></article>
+        <article class="metric-card"><span>Lost Deals</span><strong id="pipeline-lost">0</strong></article>
+      </section>
+
+      <section class="panel pipeline-summary-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Pipeline Summary</h2>
+            <p>Live summary based on active pipeline records.</p>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <div><span>Lead Count</span><strong id="summary-lead-count">0</strong></div>
+          <div><span>Conversion Rate</span><strong id="summary-conversion-rate">0%</strong></div>
+          <div><span>Open Opportunities</span><strong id="summary-open-opportunities">0</strong></div>
+          <div><span>Lead → Qualified</span><strong id="report-lead-qualified">0%</strong></div>
+          <div><span>Qualified → Appointment</span><strong id="report-qualified-appointment">0%</strong></div>
+          <div><span>Appointment → Estimate</span><strong id="report-appointment-estimate">0%</strong></div>
+          <div><span>Estimate → Won</span><strong id="report-estimate-won">0%</strong></div>
+          <div><span>Overall Close Rate</span><strong id="report-close-rate">0%</strong></div>
+        </div>
+      </section>
+
+      <section id="pipeline-editor" class="panel editor-panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h2>New opportunity</h2>
+            <p>Create a pipeline record tied to an existing customer.</p>
+          </div>
+          <button id="close-pipeline-editor" class="button link" type="button">Close</button>
+        </div>
+        <form id="pipeline-form" novalidate>
+          <div class="form-grid">
+            <label>Customer
+              <select name="customerId" required></select>
+            </label>
+            <label>Vessel
+              <select name="vesselId"></select>
+            </label>
+            <label>Estimate
+              <select name="estimateId"></select>
+            </label>
+            <label>Stage
+              <select name="stage" required>
+                <option value="lead">Lead</option>
+                <option value="qualified">Qualified</option>
+                <option value="appointment_scheduled">Appointment Scheduled</option>
+                <option value="estimate_sent">Estimate Sent</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+            </label>
+            <label class="span-2">Source
+              <input name="source" maxlength="120" value="manual" required>
+            </label>
+            <label class="span-2">Notes
+              <textarea name="notes" rows="4"></textarea>
+            </label>
+          </div>
+          <p id="pipeline-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Save opportunity</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="pipeline-board" aria-label="Sales pipeline board">
+        <div class="pipeline-column" data-stage="lead">
+          <header><h2>Lead</h2><span id="count-lead">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="lead"></div>
+        </div>
+        <div class="pipeline-column" data-stage="qualified">
+          <header><h2>Qualified</h2><span id="count-qualified">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="qualified"></div>
+        </div>
+        <div class="pipeline-column" data-stage="appointment_scheduled">
+          <header><h2>Appointment Scheduled</h2><span id="count-appointment_scheduled">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="appointment_scheduled"></div>
+        </div>
+        <div class="pipeline-column" data-stage="estimate_sent">
+          <header><h2>Estimate Sent</h2><span id="count-estimate_sent">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="estimate_sent"></div>
+        </div>
+        <div class="pipeline-column" data-stage="won">
+          <header><h2>Won</h2><span id="count-won">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="won"></div>
+        </div>
+        <div class="pipeline-column" data-stage="lost">
+          <header><h2>Lost</h2><span id="count-lost">0</span></header>
+          <div class="pipeline-column-body" data-stage-drop="lost"></div>
+        </div>
+      </section>
+
+      <p id="pipeline-message" class="form-message" role="status" hidden></p>
+    </main>
+  </div>
+
+  <script type="module" src="./js/pipeline.js"></script>
+</body>
+</html>

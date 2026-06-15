@@ -16,6 +16,7 @@
       </a>
       <nav aria-label="Primary navigation">
         <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./pipeline.html">Pipeline</a>
         <a class="nav-item active" href="./customers.html">Customers</a>
         <a class="nav-item" href="./vessels.html">Vessels</a>
         <a class="nav-item" href="./estimates.html">Estimates</a>
@@ -91,6 +92,15 @@
             </label>
           </div>
           <p id="customer-form-message" class="form-message" role="status" hidden></p>
+          <section id="customer-crm-summary" class="customer-crm-summary" hidden>
+            <h3>CRM Status</h3>
+            <div class="summary-grid">
+              <div><span>Pipeline Stage</span><strong id="customer-pipeline-stage">-</strong></div>
+              <div><span>Last Estimate</span><strong id="customer-last-estimate">-</strong></div>
+              <div><span>Total Estimates</span><strong id="customer-total-estimates">0</strong></div>
+              <div><span>Status</span><strong id="customer-crm-status">-</strong></div>
+            </div>
+          </section>
           <div class="form-actions">
             <button id="archive-customer" class="button danger" type="button" hidden>Archive customer</button>
             <button id="save-customer" class="button primary" type="submit">Save customer</button>

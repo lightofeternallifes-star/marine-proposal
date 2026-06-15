@@ -20,6 +20,40 @@ async function loadCounts() {
   document.querySelector('#customer-count').textContent = customers.count ?? 0;
 }
 
+function percent(numerator, denominator) {
+  if (!denominator) return '0%';
+  return `${Math.round((numerator / denominator) * 100)}%`;
+}
+
+async function loadPipelineMetrics() {
+  const { data, error } = await supabase
+    .from('sales_pipeline')
+    .select('stage');
+
+  if (error) {
+    console.warn('[Dashboard] Pipeline metrics unavailable:', error.message);
+    return;
+  }
+
+  const count = (stage) => data.filter((item) => item.stage === stage).length;
+  const leads = count('lead');
+  const appointments = count('appointment_scheduled');
+  const estimatesSent = count('estimate_sent');
+  const won = count('won');
+  const lost = count('lost');
+  const open = data.filter((item) => !['won', 'lost'].includes(item.stage)).length;
+
+  document.querySelector('#dashboard-leads').textContent = leads;
+  document.querySelector('#dashboard-appointments').textContent = appointments;
+  document.querySelector('#dashboard-estimates-sent').textContent = estimatesSent;
+  document.querySelector('#dashboard-won').textContent = won;
+  document.querySelector('#dashboard-lost').textContent = lost;
+  document.querySelector('#dashboard-lead-count').textContent = leads;
+  document.querySelector('#dashboard-conversion-rate').textContent = percent(won, won + lost);
+  document.querySelector('#dashboard-open-opportunities').textContent = open;
+  document.querySelector('#dashboard-close-rate').textContent = percent(won, won + lost);
+}
+
 function renderRecentEstimates(estimates) {
   const container = document.querySelector('#recent-estimates');
   if (!estimates.length) {
@@ -67,4 +101,4 @@ async function loadRecentEstimates() {
   }
 }
 
-await Promise.all([loadCounts(), loadRecentEstimates()]);
+await Promise.all([loadCounts(), loadPipelineMetrics(), loadRecentEstimates()]);
