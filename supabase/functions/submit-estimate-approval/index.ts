@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import nodemailer from 'npm:nodemailer@6.10.1';
 
 const allowedOrigins = new Set([
   'https://marineconsolidatedelectronics.com',
@@ -30,6 +31,15 @@ function jsonResponse(body: unknown, status: number, headers: Record<string, str
 function safeErrorMessage(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   return message.slice(0, 500);
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
 function isSafeToken(token: string) {
@@ -100,6 +110,130 @@ function estimatePayload(estimate: any, tokenRecord: any) {
       usedAt: tokenRecord.used_at,
     },
   };
+}
+
+async function sendDecisionNotification(estimate: any, action: string, customerNote: string | null) {
+  const smtpHost = Deno.env.get('SMTP_HOST');
+  const smtpPort = Number(Deno.env.get('SMTP_PORT') || '465');
+  const smtpUser = Deno.env.get('SMTP_USER');
+  const smtpPassword = Deno.env.get('SMTP_PASSWORD');
+  const smtpSecureValue = Deno.env.get('SMTP_SECURE');
+  const smtpSecure = smtpSecureValue
+    ? smtpSecureValue.toLowerCase() === 'true'
+    : smtpPort === 465;
+  const fromEmail = Deno.env.get('SMTP_FROM_EMAIL') || smtpUser;
+  const fromName = Deno.env.get('SMTP_FROM_NAME') || 'Marine Consolidated Electronics';
+  const replyTo = Deno.env.get('SMTP_REPLY_TO') || fromEmail;
+  const notificationEmail = Deno.env.get('APPROVAL_NOTIFICATION_EMAIL') || replyTo || fromEmail;
+
+  if (
+    !smtpHost
+    || !Number.isInteger(smtpPort)
+    || smtpPort < 1
+    || smtpPort > 65535
+    || !smtpUser
+    || !smtpPassword
+    || !fromEmail
+    || !notificationEmail
+  ) {
+    throw new Error('Email provider configuration is incomplete');
+  }
+
+  const vesselName = estimate.vessels?.vessel_name
+    || [estimate.vessels?.manufacturer, estimate.vessels?.model].filter(Boolean).join(' ')
+    || estimate.vessels?.registration_number
+    || 'Vessel';
+  const customerName = estimate.customers?.company_name || estimate.customers?.contact_name || 'Customer';
+  const decision = action === 'approve' ? 'Approved' : 'Rejected';
+  const total = money(estimate.total_cents, estimate.currency);
+  const noteHtml = customerNote
+    ? `<p style="margin:0 0 16px;"><strong>Customer note:</strong><br>${escapeHtml(customerNote).replace(/\n/g, '<br>')}</p>`
+    : '<p style="margin:0 0 16px;color:#5d6d7e;">No customer note was provided.</p>';
+
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpSecure,
+    requireTLS: !smtpSecure,
+    auth: {
+      user: smtpUser,
+      pass: smtpPassword,
+    },
+    tls: {
+      minVersion: 'TLSv1.2',
+    },
+  });
+
+  const result = await transporter.sendMail({
+    from: {
+      name: fromName,
+      address: fromEmail,
+    },
+    to: notificationEmail,
+    replyTo,
+    subject: `${decision}: Quote ${estimate.estimate_number} - ${vesselName}`,
+    html: `
+      <!doctype html>
+      <html lang="en">
+        <body style="margin:0;padding:0;background:#f3f6f8;color:#172331;font-family:Arial,Helvetica,sans-serif;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f6f8;width:100%;">
+            <tr>
+              <td align="center" style="padding:28px 16px;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                  style="max-width:620px;background:#ffffff;border:1px solid #d9e0e7;border-radius:10px;overflow:hidden;">
+                  <tr>
+                    <td style="padding:20px 28px;background:#071827;color:#ffffff;">
+                      <strong style="display:block;font-size:16px;">Marine Consolidated Electronics</strong>
+                      <span style="display:block;margin-top:4px;color:#D4AF37;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;">
+                        Customer Estimate Decision
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:28px;font-size:15px;line-height:1.65;">
+                      <h1 style="margin:0 0 18px;color:#071827;font-size:24px;">Estimate ${decision}</h1>
+                      <p style="margin:0 0 16px;">
+                        A customer has ${decision.toLowerCase()} quote
+                        <strong>${escapeHtml(estimate.estimate_number)}</strong>.
+                      </p>
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                        style="margin:0 0 18px;background:#071827;border:1px solid #D4AF37;border-radius:8px;">
+                        <tr>
+                          <td style="padding:16px 18px;color:#D4AF37;font-size:12px;font-weight:700;text-transform:uppercase;">
+                            Quote Total
+                          </td>
+                          <td align="right" style="padding:16px 18px;color:#ffffff;font-size:22px;font-weight:700;">
+                            ${escapeHtml(total)}
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:0 0 8px;"><strong>Customer:</strong> ${escapeHtml(customerName)}</p>
+                      <p style="margin:0 0 8px;"><strong>Vessel:</strong> ${escapeHtml(vesselName)}</p>
+                      <p style="margin:0 0 16px;"><strong>Decision:</strong> ${decision}</p>
+                      ${noteHtml}
+                      <p style="margin:18px 0 0;color:#5d6d7e;font-size:13px;">
+                        This notification was generated automatically by MarineQuote AI.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+      </html>
+    `,
+    headers: {
+      'X-MarineQuote-Estimate': estimate.estimate_number,
+      'X-MarineQuote-Customer-Decision': decision,
+    },
+  });
+
+  const messageId = String(result.messageId || '');
+  if (!messageId) {
+    throw new Error('SMTP provider did not return a message ID');
+  }
+  return messageId;
 }
 
 Deno.serve(async (request) => {
@@ -221,9 +355,34 @@ Deno.serve(async (request) => {
       });
     if (eventError) throw eventError;
 
+    let notificationStatus = 'sent';
+    let notificationMessageId: string | null = null;
+    try {
+      notificationMessageId = await sendDecisionNotification(estimate, action, customerNote);
+      await admin
+        .from('estimate_approval_events')
+        .insert({
+          ...eventBase,
+          action: 'notification_sent',
+          customer_note: notificationMessageId,
+        });
+    } catch (notificationError) {
+      notificationStatus = 'failed';
+      console.error('approval notification failed:', safeErrorMessage(notificationError));
+      await admin
+        .from('estimate_approval_events')
+        .insert({
+          ...eventBase,
+          action: 'notification_failed',
+          customer_note: safeErrorMessage(notificationError),
+        });
+    }
+
     return jsonResponse({
       status: nextStatus,
       decidedAt,
+      notificationStatus,
+      notificationMessageId,
       message: action === 'approve'
         ? 'Estimate approved successfully'
         : 'Estimate rejected successfully',
