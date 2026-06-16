@@ -32,6 +32,13 @@ function setActionsDisabled(disabled) {
   rejectButton.disabled = disabled;
 }
 
+function titleizeStatus(status) {
+  return String(status || '-')
+    .split('_')
+    .map((word) => word ? `${word[0].toUpperCase()}${word.slice(1)}` : '')
+    .join(' ');
+}
+
 async function callApprovalFunction(action, customerNote = '') {
   const response = await fetch(`${SUPABASE_URL}/functions/v1/submit-estimate-approval`, {
     method: 'POST',
@@ -51,7 +58,7 @@ async function callApprovalFunction(action, customerNote = '') {
 
 function renderEstimate(data) {
   document.querySelector('#estimate-number').textContent = data.estimate.estimateNumber;
-  document.querySelector('#estimate-status').textContent = data.estimate.status;
+  document.querySelector('#estimate-status').textContent = titleizeStatus(data.estimate.status);
   document.querySelector('#estimate-total').textContent = data.estimate.total;
   document.querySelector('#customer-name').textContent = data.customer.name || '-';
   document.querySelector('#customer-email').textContent = data.customer.email || '-';
