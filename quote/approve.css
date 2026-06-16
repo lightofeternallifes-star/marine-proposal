@@ -1,0 +1,272 @@
+:root {
+  color-scheme: light;
+  --navy: #071827;
+  --gold: #d4af37;
+  --ink: #172331;
+  --muted: #5d6d7e;
+  --line: #d9e0e7;
+  --surface: #ffffff;
+  --page: #f3f6f8;
+  --danger: #9f2f2f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, rgba(7, 24, 39, 0.92), rgba(7, 24, 39, 0.66)),
+    url("../assets/mce-hero-yacht.jpg") center / cover fixed;
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.approval-shell {
+  width: min(960px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 42px 0 28px;
+}
+
+.approval-card {
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.approval-header {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 30px 34px;
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.brand-mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  color: var(--gold);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.05;
+}
+
+h2 {
+  margin-bottom: 10px;
+  color: var(--navy);
+  font-size: 16px;
+}
+
+.state-panel,
+#estimate-state {
+  padding: 34px;
+}
+
+.state-panel.error {
+  border-top: 4px solid var(--danger);
+}
+
+.estimate-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.estimate-summary div,
+.details-grid article,
+.work-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fbfcfd;
+  padding: 18px;
+}
+
+.estimate-summary span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.estimate-summary strong {
+  display: block;
+  color: var(--navy);
+  font-size: 24px;
+}
+
+.estimate-summary div:last-child {
+  border-color: rgba(212, 175, 55, 0.55);
+  background: var(--navy);
+}
+
+.estimate-summary div:last-child span {
+  color: var(--gold);
+}
+
+.estimate-summary div:last-child strong {
+  color: #ffffff;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.details-grid p,
+.work-card p {
+  margin-bottom: 6px;
+  color: var(--muted);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.note-field {
+  display: block;
+  margin: 22px 0 18px;
+  color: var(--navy);
+  font-weight: 700;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+textarea:focus {
+  border-color: var(--gold);
+  outline: 3px solid rgba(212, 175, 55, 0.18);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 10px;
+  padding: 0 20px;
+  cursor: pointer;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.button.primary {
+  background: var(--gold);
+  color: var(--navy);
+}
+
+.button.danger {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.button.secondary {
+  background: var(--navy);
+  color: #ffffff;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.decision-message {
+  margin: 18px 0 0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #edf7ef;
+  color: #1f6b35;
+  font-weight: 700;
+}
+
+.decision-message.error {
+  background: #fff1f1;
+  color: var(--danger);
+}
+
+.approval-footer {
+  display: grid;
+  gap: 5px;
+  padding: 18px 10px 0;
+  color: rgba(255, 255, 255, 0.78);
+  text-align: center;
+  font-size: 12px;
+}
+
+.approval-footer strong {
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .approval-shell {
+    width: min(100% - 20px, 960px);
+    padding-top: 16px;
+  }
+
+  .approval-header,
+  .state-panel,
+  #estimate-state {
+    padding: 24px 20px;
+  }
+
+  .approval-header {
+    align-items: flex-start;
+  }
+
+  .estimate-summary,
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

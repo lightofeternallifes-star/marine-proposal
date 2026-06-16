@@ -18,6 +18,7 @@ const stageLabels = {
   qualified: 'Qualified',
   appointment_scheduled: 'Appointment Scheduled',
   estimate_sent: 'Estimate Sent',
+  approved: 'Approved',
   won: 'Won',
   lost: 'Lost',
 };

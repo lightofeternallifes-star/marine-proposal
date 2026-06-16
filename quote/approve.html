@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Estimate Approval | Marine Consolidated Electronics</title>
+  <link rel="stylesheet" href="./approve.css">
+</head>
+<body>
+  <main class="approval-shell">
+    <section class="approval-card">
+      <header class="approval-header">
+        <div class="brand-mark">MCE</div>
+        <div>
+          <p class="eyebrow">Marine Consolidated Electronics</p>
+          <h1>Estimate Approval</h1>
+        </div>
+      </header>
+
+      <section id="loading-state" class="state-panel">
+        <p>Loading your estimate...</p>
+      </section>
+
+      <section id="error-state" class="state-panel error" hidden>
+        <h2>Approval link unavailable</h2>
+        <p id="error-message">This approval link could not be loaded.</p>
+        <a class="button secondary" href="https://marineconsolidatedelectronics.com">Return to website</a>
+      </section>
+
+      <section id="estimate-state" hidden>
+        <div class="estimate-summary">
+          <div>
+            <span>Quote</span>
+            <strong id="estimate-number">-</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong id="estimate-status">-</strong>
+          </div>
+          <div>
+            <span>Total</span>
+            <strong id="estimate-total">-</strong>
+          </div>
+        </div>
+
+        <div class="details-grid">
+          <article>
+            <h2>Customer</h2>
+            <p id="customer-name">-</p>
+            <p id="customer-email">-</p>
+          </article>
+          <article>
+            <h2>Vessel</h2>
+            <p id="vessel-name">-</p>
+            <p id="vessel-details">-</p>
+          </article>
+        </div>
+
+        <article class="work-card">
+          <h2>Recommended Work</h2>
+          <p id="recommended-work">-</p>
+        </article>
+
+        <label class="note-field">
+          Optional note to Marine Consolidated Electronics
+          <textarea id="customer-note" rows="4" maxlength="2000" placeholder="Add any approval or rejection notes here."></textarea>
+        </label>
+
+        <div class="actions">
+          <button id="approve-estimate" class="button primary" type="button">Approve Estimate</button>
+          <button id="reject-estimate" class="button danger" type="button">Reject Estimate</button>
+        </div>
+
+        <p id="decision-message" class="decision-message" role="status" hidden></p>
+      </section>
+    </section>
+
+    <footer class="approval-footer">
+      <strong>Marine Consolidated Electronics</strong>
+      <span>Licensed Marine Electrical &amp; Electronics Services</span>
+      <span>This estimate is confidential and intended solely for the recipient.</span>
+    </footer>
+  </main>
+
+  <script type="module" src="./approve.js"></script>
+</body>
+</html>

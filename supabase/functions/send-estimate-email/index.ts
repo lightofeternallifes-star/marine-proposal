@@ -44,6 +44,54 @@ function safeErrorMessage(error: unknown) {
   return message.slice(0, 500);
 }
 
+function base64Url(bytes: Uint8Array) {
+  let binary = '';
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary)
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replaceAll('=', '');
+}
+
+async function sha256Hex(value: string) {
+  const encoded = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest('SHA-256', encoded);
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function createApprovalToken(admin: any, estimate: any, document: any, recipientEmail: string, userId: string) {
+  const tokenBytes = new Uint8Array(32);
+  crypto.getRandomValues(tokenBytes);
+  const token = base64Url(tokenBytes);
+  const tokenHash = await sha256Hex(token);
+  const expiresAt = new Date(
+    Date.now() + Number(estimate.validity_days || 30) * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  await admin
+    .from('estimate_approval_tokens')
+    .update({ revoked_at: new Date().toISOString() })
+    .eq('estimate_id', estimate.id)
+    .is('used_at', null)
+    .is('revoked_at', null);
+
+  const { error } = await admin
+    .from('estimate_approval_tokens')
+    .insert({
+      estimate_id: estimate.id,
+      document_id: document.id,
+      token_hash: tokenHash,
+      recipient_email: recipientEmail,
+      expires_at: expiresAt,
+      created_by: userId,
+    });
+  if (error) throw error;
+
+  return token;
+}
+
 Deno.serve(async (request) => {
   const origin = request.headers.get('origin');
   const headers = corsHeaders(origin);
@@ -195,8 +243,15 @@ Deno.serve(async (request) => {
     const subject =
       `Quote ${estimate.estimate_number} - ${vesselName} | Marine Consolidated Electronics`;
     const serviceSummaryHtml = escapeHtml(serviceSummary).replace(/\n/g, '<br>');
-    const estimatePreviewUrl =
-      `https://marineconsolidatedelectronics.com/admin/estimate-preview.html?id=${encodeURIComponent(estimate.id)}`;
+    const approvalToken = await createApprovalToken(
+      admin,
+      estimate,
+      document,
+      recipientEmail,
+      userData.user.id,
+    );
+    const estimateApprovalUrl =
+      `https://marineconsolidatedelectronics.com/quote/approve.html?token=${encodeURIComponent(approvalToken)}`;
     const logoBytes = Uint8Array.from(atob(logoBase64), (character) => character.charCodeAt(0));
     const html = `
       <!doctype html>
@@ -285,7 +340,7 @@ Deno.serve(async (request) => {
                         style="margin:0 0 26px;">
                         <tr>
                           <td align="center" bgcolor="#D4AF37" style="border-radius:6px;">
-                            <a class="cta-link" href="${escapeHtml(estimatePreviewUrl)}"
+                            <a class="cta-link" href="${escapeHtml(estimateApprovalUrl)}"
                               style="display:inline-block;padding:13px 24px;color:#071827;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px;">
                               Approve Estimate
                             </a>

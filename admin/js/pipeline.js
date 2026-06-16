@@ -9,6 +9,7 @@ const stages = [
   { key: 'qualified', label: 'Qualified' },
   { key: 'appointment_scheduled', label: 'Appointment Scheduled' },
   { key: 'estimate_sent', label: 'Estimate Sent' },
+  { key: 'approved', label: 'Approved' },
   { key: 'won', label: 'Won' },
   { key: 'lost', label: 'Lost' },
 ];
@@ -60,9 +61,10 @@ function renderMetrics() {
   const qualified = stageCount('qualified');
   const appointment = stageCount('appointment_scheduled');
   const estimateSent = stageCount('estimate_sent');
+  const approved = stageCount('approved');
   const won = stageCount('won');
   const lost = stageCount('lost');
-  const open = pipeline.filter((item) => !['won', 'lost'].includes(item.stage)).length;
+  const open = pipeline.filter((item) => !['approved', 'won', 'lost'].includes(item.stage)).length;
   const total = pipeline.length;
 
   document.querySelector('#pipeline-leads').textContent = lead;
@@ -72,7 +74,7 @@ function renderMetrics() {
   document.querySelector('#pipeline-lost').textContent = lost;
 
   document.querySelector('#summary-lead-count').textContent = lead;
-  document.querySelector('#summary-conversion-rate').textContent = percent(won, won + lost);
+  document.querySelector('#summary-conversion-rate').textContent = percent(approved + won, approved + won + lost);
   document.querySelector('#summary-open-opportunities').textContent = open;
 
   document.querySelector('#report-lead-qualified').textContent = percent(countAtOrAfter('qualified'), total);
@@ -80,8 +82,8 @@ function renderMetrics() {
     percent(countAtOrAfter('appointment_scheduled'), countAtOrAfter('qualified'));
   document.querySelector('#report-appointment-estimate').textContent =
     percent(countAtOrAfter('estimate_sent'), countAtOrAfter('appointment_scheduled'));
-  document.querySelector('#report-estimate-won').textContent = percent(won, countAtOrAfter('estimate_sent'));
-  document.querySelector('#report-close-rate').textContent = percent(won, won + lost);
+  document.querySelector('#report-estimate-won').textContent = percent(approved + won, countAtOrAfter('estimate_sent'));
+  document.querySelector('#report-close-rate').textContent = percent(approved + won, approved + won + lost);
 
   for (const stage of stages) {
     document.querySelector(`#count-${stage.key}`).textContent = stageCount(stage.key);
