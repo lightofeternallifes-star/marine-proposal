@@ -40,7 +40,11 @@ function escapeHtml(value: string) {
 }
 
 function safeErrorMessage(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = error instanceof Error
+    ? error.message
+    : typeof error === 'object'
+      ? JSON.stringify(error)
+      : String(error);
   return message.slice(0, 500);
 }
 
@@ -156,7 +160,7 @@ Deno.serve(async (request) => {
     const { data: estimate, error: estimateError } = await supabase
       .from('estimates')
       .select(`
-        id, estimate_number, current_version, currency, total_cents, validity_days,
+        id, estimate_number, customer_id, vessel_id, current_version, currency, total_cents, validity_days,
         job_description, recommended_work,
         customers(contact_name, company_name, email),
         vessels(vessel_name, manufacturer, model, registration_number)
@@ -458,7 +462,7 @@ Deno.serve(async (request) => {
       .eq('id', estimate.id)
       .eq('current_version', document.version_number);
     if (estimateUpdateError) {
-      console.error('Email sent but estimate status update failed', estimateUpdateError);
+      throw estimateUpdateError;
     }
 
     return jsonResponse({

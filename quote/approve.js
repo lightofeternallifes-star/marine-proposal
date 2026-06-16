@@ -51,7 +51,10 @@ async function callApprovalFunction(action, customerNote = '') {
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(body.error || 'Unable to process this approval link.');
+    const fallback = response.status >= 500
+      ? 'Unable to process this approval request. Please contact Marine Consolidated Electronics.'
+      : 'This approval link is invalid.';
+    throw new Error(body.error || fallback);
   }
   return body;
 }

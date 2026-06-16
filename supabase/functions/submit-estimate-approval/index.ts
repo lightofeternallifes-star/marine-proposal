@@ -319,7 +319,7 @@ Deno.serve(async (request) => {
 
     if (tokenRecord.used_at) {
       return jsonResponse({
-        error: 'This estimate has already received a customer decision',
+        error: 'This approval link has already been used.',
         ...estimatePayload(estimate, tokenRecord),
       }, 409, headers);
     }
@@ -327,6 +327,42 @@ Deno.serve(async (request) => {
     const nextStatus = action === 'approve' ? 'approved' : 'rejected';
     const eventAction = action === 'approve' ? 'approved' : 'rejected';
     const decidedAt = new Date().toISOString();
+    let approvableStatus = estimate.status;
+
+    if (approvableStatus === 'generated') {
+      const { data: sentDelivery, error: sentDeliveryError } = await admin
+        .from('estimate_deliveries')
+        .select('sent_at')
+        .eq('estimate_id', estimate.id)
+        .eq('status', 'sent')
+        .order('sent_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (sentDeliveryError) throw sentDeliveryError;
+      if (!sentDelivery?.sent_at) {
+        return jsonResponse({
+          error: 'This estimate has not been sent yet. Please contact Marine Consolidated Electronics.',
+        }, 409, headers);
+      }
+
+      const { error: repairError } = await admin
+        .from('estimates')
+        .update({
+          status: 'sent',
+          sent_at: sentDelivery.sent_at,
+        })
+        .eq('id', estimate.id)
+        .eq('status', 'generated');
+      if (repairError) throw repairError;
+      approvableStatus = 'sent';
+    }
+
+    if (approvableStatus !== 'sent') {
+      return jsonResponse({
+        error: 'This approval link has already been used.',
+        ...estimatePayload(estimate, tokenRecord),
+      }, 409, headers);
+    }
 
     const { error: estimateUpdateError } = await admin
       .from('estimates')
@@ -335,16 +371,9 @@ Deno.serve(async (request) => {
         updated_at: decidedAt,
       })
       .eq('id', estimate.id)
-      .in('status', ['sent', 'generated']);
+      .eq('status', 'sent');
 
     if (estimateUpdateError) throw estimateUpdateError;
-
-    const { error: tokenUpdateError } = await admin
-      .from('estimate_approval_tokens')
-      .update({ used_at: decidedAt })
-      .eq('id', tokenRecord.id)
-      .is('used_at', null);
-    if (tokenUpdateError) throw tokenUpdateError;
 
     const { error: eventError } = await admin
       .from('estimate_approval_events')
@@ -354,6 +383,13 @@ Deno.serve(async (request) => {
         customer_note: customerNote || null,
       });
     if (eventError) throw eventError;
+
+    const { error: tokenUpdateError } = await admin
+      .from('estimate_approval_tokens')
+      .update({ used_at: decidedAt })
+      .eq('id', tokenRecord.id)
+      .is('used_at', null);
+    if (tokenUpdateError) throw tokenUpdateError;
 
     let notificationStatus = 'sent';
     let notificationMessageId: string | null = null;
