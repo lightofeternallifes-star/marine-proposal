@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Natalie | MarineQuote AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;750;850&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>AI Admin</small></span>
+      </a>
+      <nav>
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./pipeline.html">Pipeline</a>
+        <a class="nav-item active" href="./natalie.html">Natalie</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content natalie-workspace">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Natalie AI Foundation</p>
+          <h1>Conversations & Appointments</h1>
+          <p>Track intake conversations, messages, and requested inspection windows.</p>
+        </div>
+        <button id="new-conversation" class="button primary" type="button">New conversation</button>
+      </header>
+
+      <section class="metric-grid pipeline-metrics" aria-label="Natalie summary">
+        <article class="metric-card"><span>Active Conversations</span><strong id="natalie-active-count">0</strong></article>
+        <article class="metric-card"><span>Waiting on Customer</span><strong id="natalie-waiting-count">0</strong></article>
+        <article class="metric-card"><span>Qualified</span><strong id="natalie-qualified-count">0</strong></article>
+        <article class="metric-card"><span>Appointment Requests</span><strong id="natalie-appointment-count">0</strong></article>
+        <article class="metric-card"><span>Messages</span><strong id="natalie-message-count">0</strong></article>
+      </section>
+
+      <section id="conversation-editor" class="panel editor-panel" hidden>
+        <div class="panel-header">
+          <div>
+            <h2>New Natalie conversation</h2>
+            <p>Create a manual intake record from an existing website lead.</p>
+          </div>
+          <button id="close-conversation-editor" class="button link" type="button">Close</button>
+        </div>
+        <form id="conversation-form" novalidate>
+          <div class="form-grid">
+            <label class="span-2">Lead
+              <select name="leadId" required></select>
+            </label>
+            <label>Channel
+              <select name="channel" required>
+                <option value="web">Web</option>
+                <option value="phone">Phone</option>
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </label>
+            <label>Status
+              <select name="status" required>
+                <option value="active">Active</option>
+                <option value="waiting_on_customer">Waiting on Customer</option>
+                <option value="qualified">Qualified</option>
+                <option value="appointment_requested">Appointment Requested</option>
+                <option value="escalated">Escalated</option>
+                <option value="closed">Closed</option>
+              </select>
+            </label>
+            <label class="span-2">Current Question
+              <select name="currentQuestionKey">
+                <option value="">No question selected</option>
+                <option value="location_type">Location type</option>
+                <option value="vessel_type">Vessel type</option>
+                <option value="vessel_name">Vessel name</option>
+                <option value="service_type">Service type</option>
+                <option value="operability">Operability impact</option>
+                <option value="location_details">Location details</option>
+                <option value="appointment_time">Appointment time</option>
+              </select>
+            </label>
+          </div>
+          <p id="conversation-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Create conversation</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="natalie-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Conversations</h2>
+              <p>Select a conversation to view messages and requests.</p>
+            </div>
+          </div>
+          <div id="conversation-list" class="natalie-list">
+            <p class="empty-state">No conversations yet.</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Messages</h2>
+              <p id="message-context">Select a conversation.</p>
+            </div>
+          </div>
+          <div id="message-list" class="message-thread">
+            <p class="empty-state">No messages selected.</p>
+          </div>
+          <form id="message-form" class="inline-form" hidden>
+            <label>Message Type
+              <select name="senderType" required>
+                <option value="staff">Staff</option>
+                <option value="system">System</option>
+                <option value="customer">Customer</option>
+                <option value="natalie">Natalie</option>
+              </select>
+            </label>
+            <label>Direction
+              <select name="direction" required>
+                <option value="outbound">Outbound</option>
+                <option value="inbound">Inbound</option>
+              </select>
+            </label>
+            <label class="span-2">Body
+              <textarea name="body" rows="3" required maxlength="5000"></textarea>
+            </label>
+            <p id="message-form-message" class="form-message" role="status" hidden></p>
+            <div class="form-actions">
+              <button class="button primary" type="submit">Add message</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Appointment Requests</h2>
+            <p>Requested inspection windows collected by Natalie or staff.</p>
+          </div>
+        </div>
+        <form id="appointment-form" class="inline-form" hidden>
+          <div class="form-grid">
+            <label>Requested Date
+              <input name="requestedDate" type="date">
+            </label>
+            <label>Requested Time
+              <input name="requestedTime" type="time">
+            </label>
+            <label>Location Type
+              <select name="locationType">
+                <option value="">Select one</option>
+                <option value="marina">Marina</option>
+                <option value="private_residence">Private residence</option>
+                <option value="boatyard">Boatyard</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>Marina Name
+              <input name="marinaName" maxlength="160">
+            </label>
+            <label>City
+              <input name="city" maxlength="120">
+            </label>
+            <label>State / Province
+              <input name="stateProvince" maxlength="120">
+            </label>
+            <label>Country
+              <input name="country" maxlength="120">
+            </label>
+            <label>Status
+              <select name="status" required>
+                <option value="requested">Requested</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="reschedule_requested">Reschedule Requested</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </label>
+            <label class="span-2">Notes
+              <textarea name="notes" rows="3"></textarea>
+            </label>
+          </div>
+          <p id="appointment-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Save appointment request</button>
+          </div>
+        </form>
+        <div id="appointment-list" class="table-wrap">
+          <p class="empty-state">No appointment requests yet.</p>
+        </div>
+      </section>
+
+      <p id="natalie-message" class="form-message" role="status" hidden></p>
+    </main>
+  </div>
+
+  <script type="module" src="./js/natalie.js"></script>
+</body>
+</html>

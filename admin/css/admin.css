@@ -876,6 +876,86 @@ textarea:focus {
   text-align: center;
 }
 
+.natalie-workspace {
+  max-width: 1500px;
+}
+
+.natalie-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 28px;
+}
+
+.natalie-list {
+  display: grid;
+  gap: 10px;
+}
+
+.natalie-card {
+  display: grid;
+  width: 100%;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  color: var(--ink);
+  background: var(--white);
+  text-align: left;
+  cursor: pointer;
+}
+
+.natalie-card[data-selected="true"] {
+  border-color: rgba(212, 175, 55, 0.7);
+  background: #fffaf0;
+}
+
+.natalie-card span,
+.natalie-card small {
+  color: var(--muted);
+}
+
+.message-thread {
+  display: grid;
+  gap: 12px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.message-bubble {
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.message-bubble.outbound {
+  border-color: rgba(212, 175, 55, 0.35);
+  background: #fff8df;
+}
+
+.message-bubble strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--navy-800);
+  font-size: 0.78rem;
+  text-transform: capitalize;
+}
+
+.message-bubble p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.inline-form {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
 @media (max-width: 900px) {
   .auth-page::before {
     background-position: 58% center;
@@ -928,6 +1008,10 @@ textarea:focus {
   .metric-grid.pipeline-metrics,
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .natalie-grid {
+    grid-template-columns: 1fr;
   }
 }
 
