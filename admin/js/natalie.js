@@ -13,6 +13,7 @@ const conversationEditor = document.querySelector('#conversation-editor');
 const conversationForm = document.querySelector('#conversation-form');
 const pageMessage = document.querySelector('#natalie-message');
 const detailsContext = document.querySelector('#details-context');
+const markQualifiedButton = document.querySelector('#mark-qualified');
 
 let conversations = [];
 let messages = [];
@@ -37,19 +38,6 @@ function stageLabel(value) {
     .join(' ');
 }
 
-async function invokeNatalieIntake(payload) {
-  const { data, error } = await supabase.functions.invoke('natalie-intake', {
-    body: payload,
-  });
-  if (error) {
-    throw new Error(error.message || 'Unable to process Natalie intake.');
-  }
-  if (!data?.ok) {
-    throw new Error(data?.error || 'Unable to process Natalie intake.');
-  }
-  return data;
-}
-
 function customerLabel(customer, lead) {
   if (customer?.company_name) return `${customer.contact_name} - ${customer.company_name}`;
   return customer?.contact_name || lead?.full_name || 'Unknown customer';
@@ -60,7 +48,7 @@ function vesselLabel(vessel, lead) {
 }
 
 function leadLabel(lead) {
-  return `${lead.full_name} · ${lead.email} · ${lead.service_type}`;
+  return `${lead.full_name} · ${lead.email || lead.phone || 'No contact'} · ${lead.service_type}`;
 }
 
 function formatDate(value) {
@@ -91,13 +79,13 @@ function renderConversations() {
     card.dataset.selected = selectedConversation?.id === conversation.id ? 'true' : 'false';
 
     const title = document.createElement('strong');
-    title.textContent = customerLabel(conversation.customers, conversation.leads);
+    title.textContent = customerLabel(conversation.customers, conversation.lead_intake);
 
     const vessel = document.createElement('span');
-    vessel.textContent = vesselLabel(conversation.vessels, conversation.leads);
+    vessel.textContent = vesselLabel(conversation.vessels, conversation.lead_intake);
 
     const meta = document.createElement('small');
-    meta.textContent = `${stageLabel(conversation.intake_stage)} · ${statusLabels[conversation.status] || conversation.status} · ${formatDate(conversation.last_message_at || conversation.updated_at)}`;
+    meta.textContent = `${conversation.current_stage || 'Lead'} · ${statusLabels[conversation.status] || conversation.status} · ${formatDate(conversation.last_message_at || conversation.updated_at)}`;
 
     card.append(title, vessel, meta);
     card.addEventListener('click', () => selectConversation(conversation.id));
@@ -123,26 +111,26 @@ function renderConversationDetails() {
     fields.problem.textContent = '-';
     fields.stage.textContent = '-';
     fields.appointment.textContent = '-';
+    markQualifiedButton.disabled = true;
     return;
   }
 
-  const data = selectedConversation.intake_data || {};
+  const data = selectedConversation.intake_summary || {};
   const appointment = appointments.find((item) => item.conversation_id === selectedConversation.id);
   const vessel = [
-    data.vessel_type,
-    data.manufacturer_model,
-  ].filter(Boolean).join(' · ') || vesselLabel(selectedConversation.vessels, selectedConversation.leads);
+    data.vessel_name,
+    [data.manufacturer, data.model].filter(Boolean).join(' '),
+  ].filter(Boolean).join(' · ') || vesselLabel(selectedConversation.vessels, selectedConversation.lead_intake);
 
-  detailsContext.textContent = customerLabel(selectedConversation.customers, selectedConversation.leads);
-  fields.customerName.textContent = data.customer_name || selectedConversation.customers?.contact_name || selectedConversation.leads?.full_name || '-';
-  fields.location.textContent = data.location || selectedConversation.vessels?.location || '-';
+  detailsContext.textContent = customerLabel(selectedConversation.customers, selectedConversation.lead_intake);
+  fields.customerName.textContent = data.full_name || selectedConversation.customers?.contact_name || selectedConversation.lead_intake?.full_name || '-';
+  fields.location.textContent = [data.marina, data.city, data.country].filter(Boolean).join(', ') || selectedConversation.vessels?.location || '-';
   fields.vessel.textContent = vessel || '-';
-  fields.problem.textContent = data.problem_description || appointment?.problem_description || '-';
-  fields.stage.textContent = stageLabel(selectedConversation.intake_stage || selectedConversation.status);
-  fields.appointment.textContent = data.preferred_inspection_window
-    || appointment?.preferred_inspection_window
-    || appointment?.requested_time_text
+  fields.problem.textContent = data.description || appointment?.notes || '-';
+  fields.stage.textContent = selectedConversation.current_stage || stageLabel(selectedConversation.status);
+  fields.appointment.textContent = appointment?.requested_window
     || '-';
+  markQualifiedButton.disabled = selectedConversation.status === 'qualified';
 }
 
 function renderMessages() {
@@ -202,7 +190,7 @@ function renderAppointments() {
   for (const appointment of relatedAppointments) {
     const row = document.createElement('tr');
     const location = [
-      appointment.marina_name,
+      appointment.marina,
       appointment.city,
       appointment.state_province,
       appointment.country,
@@ -212,9 +200,9 @@ function renderAppointments() {
       : appointment.customers?.contact_name || '-';
     const values = [
       customer,
-      appointment.requested_time_text || formatDate(appointment.requested_start_at),
+      appointment.requested_window || [appointment.requested_date, appointment.requested_time].filter(Boolean).join(' '),
       location,
-      appointment.problem_description || '-',
+      appointment.notes || '-',
       appointment.status,
       formatDate(appointment.created_at),
     ];
@@ -251,8 +239,8 @@ function populateLeadSelect() {
 
 async function loadLeads() {
   const { data, error } = await supabase
-    .from('leads')
-    .select('id, full_name, email, phone, vessel_name, boat_type, service_type, customer_id, vessel_id, pipeline_id')
+    .from('lead_intake')
+    .select('id, full_name, email, phone, vessel_name, manufacturer, model, service_type, customer_id, vessel_id, pipeline_id')
     .order('created_at', { ascending: false })
     .limit(100);
   if (error) throw error;
@@ -262,10 +250,10 @@ async function loadLeads() {
 
 async function loadConversations() {
   const { data, error } = await supabase
-    .from('conversations')
+    .from('natalie_conversations')
     .select(`
       *,
-      leads(full_name, email, phone, vessel_name, service_type, priority),
+      lead_intake(full_name, email, phone, vessel_name, manufacturer, model, service_type, description, marina, city, country),
       customers(contact_name, company_name, email, phone),
       vessels(vessel_name, vessel_type, location),
       sales_pipeline(stage, source)
@@ -280,7 +268,7 @@ async function loadConversations() {
 
 async function loadMessages() {
   const { data, error } = await supabase
-    .from('messages')
+    .from('natalie_messages')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(250);
@@ -290,7 +278,7 @@ async function loadMessages() {
 
 async function loadAppointments() {
   const { data, error } = await supabase
-    .from('appointments')
+    .from('appointment_requests')
     .select(`
       *,
       customers(contact_name, company_name),
@@ -318,6 +306,25 @@ document.querySelector('#close-conversation-editor').addEventListener('click', (
   conversationEditor.hidden = true;
 });
 
+markQualifiedButton.addEventListener('click', async () => {
+  if (!selectedConversation) return;
+  const { error } = await supabase
+    .from('natalie_conversations')
+    .update({
+      status: 'qualified',
+      current_stage: 'Qualified',
+      qualified_at: new Date().toISOString(),
+    })
+    .eq('id', selectedConversation.id);
+  if (error) {
+    setFormMessage(pageMessage, 'Unable to mark conversation qualified.', true);
+    return;
+  }
+  setFormMessage(pageMessage, 'Conversation marked qualified.');
+  await loadAll();
+  selectConversation(selectedConversation.id);
+});
+
 conversationForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const formMessage = document.querySelector('#conversation-form-message');
@@ -331,13 +338,44 @@ conversationForm.addEventListener('submit', async (event) => {
   }
 
   try {
-    const result = await invokeNatalieIntake({
-      action: 'start',
-      leadId: lead.id,
-    });
+    const { data: existing } = await supabase
+      .from('natalie_conversations')
+      .select('id')
+      .eq('lead_intake_id', lead.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    let conversationId = existing?.id;
+    if (!conversationId) {
+      const { data: created, error } = await supabase
+        .from('natalie_conversations')
+        .insert({
+          lead_intake_id: lead.id,
+          customer_id: lead.customer_id,
+          vessel_id: lead.vessel_id,
+          pipeline_id: lead.pipeline_id,
+          status: 'active',
+          current_stage: 'Lead',
+          assigned_to: profile.id,
+          intake_summary: {
+            full_name: lead.full_name,
+            phone: lead.phone,
+            email: lead.email,
+            vessel_name: lead.vessel_name,
+            manufacturer: lead.manufacturer,
+            model: lead.model,
+            service_type: lead.service_type,
+          },
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      conversationId = created.id;
+    }
     setFormMessage(formMessage, 'Natalie intake started.');
     await loadAll();
-    selectConversation(result.conversationId);
+    selectConversation(conversationId);
     window.setTimeout(() => { conversationEditor.hidden = true; }, 500);
   } catch (error) {
     setFormMessage(formMessage, error.message || 'Unable to start Natalie intake.', true);
@@ -352,18 +390,20 @@ messageForm.addEventListener('submit', async (event) => {
   if (!messageForm.reportValidity() || !selectedConversation) return;
 
   try {
-    const result = await invokeNatalieIntake({
-      action: 'answer',
-      conversationId: selectedConversation.id,
-      answer: messageForm.elements.body.value.trim(),
+    const { error } = await supabase.from('natalie_messages').insert({
+      conversation_id: selectedConversation.id,
+      lead_intake_id: selectedConversation.lead_intake_id,
+      customer_id: selectedConversation.customer_id,
+      direction: 'inbound',
+      sender_type: 'customer',
+      body: messageForm.elements.body.value.trim(),
+      metadata: { source: 'admin_natalie_foundation' },
     });
+    if (error) throw error;
     messageForm.reset();
-    setFormMessage(
-      formMessage,
-      result.completed ? 'Natalie intake completed and appointment request created.' : 'Answer saved. Natalie advanced to the next question.',
-    );
+    setFormMessage(formMessage, 'Message saved to Natalie conversation.');
     await loadAll();
-    selectConversation(result.conversationId);
+    selectConversation(selectedConversation.id);
   } catch (error) {
     setFormMessage(formMessage, error.message || 'Unable to save Natalie answer.', true);
     return;
@@ -376,26 +416,17 @@ appointmentForm.addEventListener('submit', async (event) => {
   formMessage.hidden = true;
   if (!appointmentForm.reportValidity() || !selectedConversation) return;
 
-  const date = appointmentForm.elements.requestedDate.value;
-  const time = appointmentForm.elements.requestedTime.value;
-  const requestedStartAt = date && time
-    ? new Date(`${date}T${time}:00`).toISOString()
-    : null;
-  const requestedTimeText = date || time
-    ? [date, time].filter(Boolean).join(' ')
-    : null;
-
-  const { error } = await supabase.from('appointments').insert({
-    lead_id: selectedConversation.lead_id,
+  const { error } = await supabase.from('appointment_requests').insert({
+    lead_intake_id: selectedConversation.lead_intake_id,
     customer_id: selectedConversation.customer_id,
     vessel_id: selectedConversation.vessel_id,
     pipeline_id: selectedConversation.pipeline_id,
     conversation_id: selectedConversation.id,
-    requested_start_at: requestedStartAt,
-    requested_time_text: requestedTimeText,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    requested_date: normalizeOptional(appointmentForm.elements.requestedDate.value),
+    requested_time: normalizeOptional(appointmentForm.elements.requestedTime.value),
+    requested_window: normalizeOptional([appointmentForm.elements.requestedDate.value, appointmentForm.elements.requestedTime.value].filter(Boolean).join(' ')),
     location_type: normalizeOptional(appointmentForm.elements.locationType.value),
-    marina_name: normalizeOptional(appointmentForm.elements.marinaName.value),
+    marina: normalizeOptional(appointmentForm.elements.marinaName.value),
     city: normalizeOptional(appointmentForm.elements.city.value),
     state_province: normalizeOptional(appointmentForm.elements.stateProvince.value),
     country: normalizeOptional(appointmentForm.elements.country.value),
@@ -416,9 +447,9 @@ appointmentForm.addEventListener('submit', async (event) => {
 
 supabase
   .channel('natalie-data-foundation')
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, loadAll)
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, loadAll)
-  .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, loadAll)
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'natalie_conversations' }, loadAll)
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'natalie_messages' }, loadAll)
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'appointment_requests' }, loadAll)
   .subscribe();
 
 try {
