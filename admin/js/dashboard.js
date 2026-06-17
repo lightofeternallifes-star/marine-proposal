@@ -26,15 +26,35 @@ function percent(numerator, denominator) {
 }
 
 async function loadPipelineMetrics() {
-  const { data, error } = await supabase
-    .from('sales_pipeline')
-    .select('stage');
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfToday.getDate() - 6);
 
-  if (error) {
-    console.warn('[Dashboard] Pipeline metrics unavailable:', error.message);
+  const [pipelineResult, leadsTodayResult, leadsWeekResult] = await Promise.all([
+    supabase
+    .from('sales_pipeline')
+      .select('stage'),
+    supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfToday.toISOString()),
+    supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfWeek.toISOString()),
+  ]);
+
+  if (pipelineResult.error) {
+    console.warn('[Dashboard] Pipeline metrics unavailable:', pipelineResult.error.message);
     return;
   }
 
+  if (leadsTodayResult.error || leadsWeekResult.error) {
+    console.warn('[Dashboard] Lead capture metrics unavailable:', leadsTodayResult.error?.message || leadsWeekResult.error?.message);
+  }
+
+  const data = pipelineResult.data;
   const count = (stage) => data.filter((item) => item.stage === stage).length;
   const leads = count('lead');
   const appointments = count('appointment_scheduled');
@@ -43,6 +63,8 @@ async function loadPipelineMetrics() {
   const lost = count('lost');
   const open = data.filter((item) => !['won', 'lost'].includes(item.stage)).length;
 
+  document.querySelector('#dashboard-leads-today').textContent = leadsTodayResult.count ?? 0;
+  document.querySelector('#dashboard-leads-week').textContent = leadsWeekResult.count ?? 0;
   document.querySelector('#dashboard-leads').textContent = leads;
   document.querySelector('#dashboard-appointments').textContent = appointments;
   document.querySelector('#dashboard-estimates-sent').textContent = estimatesSent;

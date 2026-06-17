@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request Service | Marine Consolidated Electronics</title>
+  <meta name="description" content="Request marine electrical and electronics service from Marine Consolidated Electronics.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./lead.css">
+</head>
+<body>
+  <header class="lead-header">
+    <a class="brand" href="../">
+      <span class="brand-mark">MCE</span>
+      <span>
+        <strong>Marine Consolidated</strong>
+        <small>Electronics</small>
+      </span>
+    </a>
+    <a class="header-phone" href="tel:+17863572397">(786) 357-2397</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Marine Electrical & Electronics Service</p>
+        <h1>Request Service for Your Vessel</h1>
+        <p>
+          Tell us what is happening with your vessel. Eduardo's team will review the request and follow up with the next step.
+        </p>
+      </div>
+
+      <form id="lead-form" class="lead-card" novalidate>
+        <input type="text" name="companyWebsite" class="honeypot" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="form-section">
+          <p class="section-label">Customer</p>
+          <div class="field-grid">
+            <label>
+              Full Name
+              <input name="fullName" type="text" autocomplete="name" required maxlength="160">
+            </label>
+            <label>
+              Phone
+              <input name="phone" type="tel" autocomplete="tel" required maxlength="40">
+            </label>
+            <label class="span-2">
+              Email
+              <input name="email" type="email" autocomplete="email" required maxlength="254">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <p class="section-label">Vessel</p>
+          <div class="field-grid">
+            <label>
+              Vessel Name
+              <input name="vesselName" type="text" maxlength="160">
+            </label>
+            <label>
+              Boat Type
+              <input name="boatType" type="text" placeholder="Yacht, sailboat, center console..." maxlength="100">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <p class="section-label">Location</p>
+          <div class="field-grid">
+            <label>
+              Marina Name
+              <input name="marinaName" type="text" maxlength="160">
+            </label>
+            <label>
+              City
+              <input name="city" type="text" autocomplete="address-level2" maxlength="120">
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <p class="section-label">Service Need</p>
+          <div class="field-grid">
+            <label>
+              Service Type
+              <select name="serviceType" required>
+                <option value="">Select one</option>
+                <option value="electrical_issue">Electrical Issue</option>
+                <option value="electronics_issue">Electronics Issue</option>
+                <option value="generator">Generator</option>
+                <option value="battery_bank">Battery Bank</option>
+                <option value="inverter">Inverter</option>
+                <option value="shore_power">Shore Power</option>
+                <option value="corrosion">Corrosion</option>
+                <option value="navigation_system">Navigation System</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>
+              Priority
+              <select name="priority" required>
+                <option value="">Select one</option>
+                <option value="emergency">Emergency</option>
+                <option value="within_24_hours">Within 24 Hours</option>
+                <option value="this_week">This Week</option>
+                <option value="no_rush">No Rush</option>
+              </select>
+            </label>
+            <label class="span-2">
+              Problem Description
+              <textarea name="problemDescription" rows="5" required minlength="10" maxlength="3000" placeholder="Describe the issue, equipment involved, symptoms, and any urgency."></textarea>
+            </label>
+          </div>
+        </div>
+
+        <p id="lead-message" class="form-message" hidden></p>
+        <button id="lead-submit" class="submit-button" type="submit">Request Service</button>
+        <p class="privacy-note">Your request is sent securely to Marine Consolidated Electronics. For urgent electrical emergencies, call directly.</p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="lead-footer">
+    <strong>Marine Consolidated Electronics</strong>
+    <span>Licensed Marine Electrical & Electronics Services</span>
+  </footer>
+
+  <script type="module" src="./lead.js"></script>
+</body>
+</html>
