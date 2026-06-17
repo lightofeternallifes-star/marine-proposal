@@ -187,7 +187,8 @@ Edge Function deployed:
 
 Frontend deployment:
 
-- static files committed for production deployment through the existing repository deployment flow.
+- static files pushed to `origin/main`
+- production deployment verified by HTTP checks
 
 ## Production URLs
 
@@ -226,7 +227,14 @@ Verified DB state:
 
 ## Screenshots
 
-Screenshots were not captured from this CLI environment. Production URLs and database records were verified directly.
+Screenshots were not captured from this CLI environment. Production URLs, deployed markup, Edge Function deployment, and database records were verified directly.
+
+Verified deployed markup:
+
+- `/lead/` returns HTTP 200 and includes `#lead-form`
+- homepage includes `/lead/` CTA links
+- admin dashboard includes `New Leads Today`
+- admin dashboard includes `New Leads This Week`
 
 ## Remaining Tasks
 
