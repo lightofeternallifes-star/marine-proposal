@@ -211,6 +211,12 @@ Production DB verification:
 - RLS enabled on all three tables
 - initial counts are zero
 
+Admin UI deployment:
+
+- `https://marineconsolidatedelectronics.com/admin/natalie.html` returns HTTP 200
+- deployed markup includes Natalie conversation, message, and appointment sections
+- dashboard navigation includes the Natalie admin link
+
 ## Verification
 
 Local:
@@ -247,4 +253,4 @@ Next phase should implement the actual Natalie intake workflow:
 
 ## Final Status
 
-Phase 3B Data Foundation is production-deployed at the database layer and ready for admin visibility deployment.
+Phase 3B Data Foundation is production-deployed at the database layer and visible inside MarineQuote AI Admin.
