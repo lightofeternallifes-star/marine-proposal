@@ -31,7 +31,7 @@ async function loadPipelineMetrics() {
   const startOfWeek = new Date(startOfToday);
   startOfWeek.setDate(startOfToday.getDate() - 6);
 
-  const [pipelineResult, leadsTodayResult, leadsWeekResult] = await Promise.all([
+  const [pipelineResult, leadsTodayResult, leadsWeekResult, adminLeadsTodayResult, adminLeadsWeekResult] = await Promise.all([
     supabase
     .from('sales_pipeline')
       .select('stage'),
@@ -43,6 +43,14 @@ async function loadPipelineMetrics() {
       .from('leads')
       .select('id', { count: 'exact', head: true })
       .gte('created_at', startOfWeek.toISOString()),
+    supabase
+      .from('lead_intake')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfToday.toISOString()),
+    supabase
+      .from('lead_intake')
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', startOfWeek.toISOString()),
   ]);
 
   if (pipelineResult.error) {
@@ -50,8 +58,14 @@ async function loadPipelineMetrics() {
     return;
   }
 
-  if (leadsTodayResult.error || leadsWeekResult.error) {
-    console.warn('[Dashboard] Lead capture metrics unavailable:', leadsTodayResult.error?.message || leadsWeekResult.error?.message);
+  if (leadsTodayResult.error || leadsWeekResult.error || adminLeadsTodayResult.error || adminLeadsWeekResult.error) {
+    console.warn(
+      '[Dashboard] Lead capture metrics unavailable:',
+      leadsTodayResult.error?.message
+        || leadsWeekResult.error?.message
+        || adminLeadsTodayResult.error?.message
+        || adminLeadsWeekResult.error?.message,
+    );
   }
 
   const data = pipelineResult.data;
@@ -63,8 +77,10 @@ async function loadPipelineMetrics() {
   const lost = count('lost');
   const open = data.filter((item) => !['won', 'lost'].includes(item.stage)).length;
 
-  document.querySelector('#dashboard-leads-today').textContent = leadsTodayResult.count ?? 0;
-  document.querySelector('#dashboard-leads-week').textContent = leadsWeekResult.count ?? 0;
+  document.querySelector('#dashboard-leads-today').textContent =
+    (leadsTodayResult.count ?? 0) + (adminLeadsTodayResult.count ?? 0);
+  document.querySelector('#dashboard-leads-week').textContent =
+    (leadsWeekResult.count ?? 0) + (adminLeadsWeekResult.count ?? 0);
   document.querySelector('#dashboard-leads').textContent = leads;
   document.querySelector('#dashboard-appointments').textContent = appointments;
   document.querySelector('#dashboard-estimates-sent').textContent = estimatesSent;

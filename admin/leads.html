@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Leads | MarineQuote AI</title>
+  <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="./dashboard.html">
+        <span class="brand-mark small">MCE</span>
+        <span><strong>MarineQuote</strong><small>Estimate Management</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a class="nav-item" href="./dashboard.html">Dashboard</a>
+        <a class="nav-item" href="./pipeline.html">Pipeline</a>
+        <a class="nav-item active" href="./leads.html">Leads</a>
+        <a class="nav-item" href="./natalie.html">Natalie</a>
+        <a class="nav-item" href="./customers.html">Customers</a>
+        <a class="nav-item" href="./vessels.html">Vessels</a>
+        <a class="nav-item" href="./estimates.html">Estimates</a>
+        <a class="nav-item" href="./history.html">History</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="user-name">Loading...</span>
+        <button id="sign-out" class="button secondary full" type="button">Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Lead Capture</p>
+          <h1>New Lead Intake</h1>
+          <p>Create structured leads and automatically add them to the sales pipeline.</p>
+        </div>
+        <button id="new-lead" class="button primary" type="button">New Lead</button>
+      </header>
+
+      <section id="lead-editor" class="panel editor-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Lead Capture Form</h2>
+            <p>Saving a lead creates or matches customer/vessel records and creates a Pipeline lead.</p>
+          </div>
+        </div>
+        <form id="lead-form" novalidate>
+          <div class="form-grid">
+            <label>Full Name *
+              <input name="fullName" maxlength="160" autocomplete="name" required>
+            </label>
+            <label>Phone
+              <input name="phone" type="tel" maxlength="40" autocomplete="tel">
+            </label>
+            <label>Email
+              <input name="email" type="email" maxlength="254" autocomplete="email">
+            </label>
+            <label>Vessel Name
+              <input name="vesselName" maxlength="160">
+            </label>
+            <label>Manufacturer
+              <input name="manufacturer" maxlength="120">
+            </label>
+            <label>Model
+              <input name="model" maxlength="120">
+            </label>
+            <label>Length
+              <input name="length" type="number" min="1" step="0.01">
+            </label>
+            <label>Marina
+              <input name="marina" maxlength="160">
+            </label>
+            <label>City
+              <input name="city" maxlength="120">
+            </label>
+            <label>Country
+              <input name="country" maxlength="120" value="United States">
+            </label>
+            <label class="span-2">Service Type *
+              <select name="serviceType" required>
+                <option value="">Select service type</option>
+                <option>Electrical</option>
+                <option>Generator</option>
+                <option>Battery</option>
+                <option>Inverter</option>
+                <option>Shore Power</option>
+                <option>Navigation</option>
+                <option>Electronics</option>
+                <option>Corrosion</option>
+                <option>Other</option>
+              </select>
+            </label>
+            <label class="span-2">Description *
+              <textarea name="description" rows="5" maxlength="3000" required></textarea>
+            </label>
+          </div>
+          <p id="lead-form-message" class="form-message" role="status" hidden></p>
+          <div class="form-actions">
+            <button class="button primary" type="submit">Save Lead</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent Leads</h2>
+            <p>Admin lead intake submissions and linked pipeline records.</p>
+          </div>
+        </div>
+        <div id="lead-list" class="table-wrap">
+          <p class="empty-state">No leads yet.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="./js/leads.js"></script>
+</body>
+</html>
