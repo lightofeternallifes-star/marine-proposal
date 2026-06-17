@@ -35,10 +35,10 @@
       <header class="page-header">
         <div>
           <p class="eyebrow">Natalie AI Foundation</p>
-          <h1>Conversations & Appointments</h1>
-          <p>Track intake conversations, messages, and requested inspection windows.</p>
+          <h1>Natalie Intake Engine</h1>
+          <p>Run structured intake conversations, capture answers, and create inspection requests.</p>
         </div>
-        <button id="new-conversation" class="button primary" type="button">New conversation</button>
+        <button id="new-conversation" class="button primary" type="button">Start Natalie intake</button>
       </header>
 
       <section class="metric-grid pipeline-metrics" aria-label="Natalie summary">
@@ -53,7 +53,7 @@
         <div class="panel-header">
           <div>
             <h2>New Natalie conversation</h2>
-            <p>Create a manual intake record from an existing website lead.</p>
+            <p>Start Natalie's structured qualification workflow from an existing website lead.</p>
           </div>
           <button id="close-conversation-editor" class="button link" type="button">Close</button>
         </div>
@@ -62,43 +62,29 @@
             <label class="span-2">Lead
               <select name="leadId" required></select>
             </label>
-            <label>Channel
-              <select name="channel" required>
-                <option value="web">Web</option>
-                <option value="phone">Phone</option>
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-                <option value="whatsapp">WhatsApp</option>
-              </select>
-            </label>
-            <label>Status
-              <select name="status" required>
-                <option value="active">Active</option>
-                <option value="waiting_on_customer">Waiting on Customer</option>
-                <option value="qualified">Qualified</option>
-                <option value="appointment_requested">Appointment Requested</option>
-                <option value="escalated">Escalated</option>
-                <option value="closed">Closed</option>
-              </select>
-            </label>
-            <label class="span-2">Current Question
-              <select name="currentQuestionKey">
-                <option value="">No question selected</option>
-                <option value="location_type">Location type</option>
-                <option value="vessel_type">Vessel type</option>
-                <option value="vessel_name">Vessel name</option>
-                <option value="service_type">Service type</option>
-                <option value="operability">Operability impact</option>
-                <option value="location_details">Location details</option>
-                <option value="appointment_time">Appointment time</option>
-              </select>
-            </label>
           </div>
           <p id="conversation-form-message" class="form-message" role="status" hidden></p>
           <div class="form-actions">
-            <button class="button primary" type="submit">Create conversation</button>
+            <button class="button primary" type="submit">Start intake</button>
           </div>
         </form>
+      </section>
+
+      <section class="panel conversation-details-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Conversation Details</h2>
+            <p id="details-context">Select a conversation to see Natalie intake details.</p>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <div><span>Customer Name</span><strong id="detail-customer-name">-</strong></div>
+          <div><span>Location</span><strong id="detail-location">-</strong></div>
+          <div><span>Vessel</span><strong id="detail-vessel">-</strong></div>
+          <div><span>Problem</span><strong id="detail-problem">-</strong></div>
+          <div><span>Current Stage</span><strong id="detail-stage">-</strong></div>
+          <div><span>Requested Appointment</span><strong id="detail-appointment">-</strong></div>
+        </div>
       </section>
 
       <section class="natalie-grid">
@@ -125,26 +111,12 @@
             <p class="empty-state">No messages selected.</p>
           </div>
           <form id="message-form" class="inline-form" hidden>
-            <label>Message Type
-              <select name="senderType" required>
-                <option value="staff">Staff</option>
-                <option value="system">System</option>
-                <option value="customer">Customer</option>
-                <option value="natalie">Natalie</option>
-              </select>
-            </label>
-            <label>Direction
-              <select name="direction" required>
-                <option value="outbound">Outbound</option>
-                <option value="inbound">Inbound</option>
-              </select>
-            </label>
             <label class="span-2">Body
-              <textarea name="body" rows="3" required maxlength="5000"></textarea>
+              <textarea name="body" rows="3" required maxlength="5000" placeholder="Enter the customer's answer to Natalie’s current question."></textarea>
             </label>
             <p id="message-form-message" class="form-message" role="status" hidden></p>
             <div class="form-actions">
-              <button class="button primary" type="submit">Add message</button>
+              <button class="button primary" type="submit">Send answer to Natalie</button>
             </div>
           </form>
         </section>

@@ -12,6 +12,7 @@ const appointmentList = document.querySelector('#appointment-list');
 const conversationEditor = document.querySelector('#conversation-editor');
 const conversationForm = document.querySelector('#conversation-form');
 const pageMessage = document.querySelector('#natalie-message');
+const detailsContext = document.querySelector('#details-context');
 
 let conversations = [];
 let messages = [];
@@ -28,6 +29,26 @@ const statusLabels = {
   closed: 'Closed',
   archived: 'Archived',
 };
+
+function stageLabel(value) {
+  return String(value || '-')
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ');
+}
+
+async function invokeNatalieIntake(payload) {
+  const { data, error } = await supabase.functions.invoke('natalie-intake', {
+    body: payload,
+  });
+  if (error) {
+    throw new Error(error.message || 'Unable to process Natalie intake.');
+  }
+  if (!data?.ok) {
+    throw new Error(data?.error || 'Unable to process Natalie intake.');
+  }
+  return data;
+}
 
 function customerLabel(customer, lead) {
   if (customer?.company_name) return `${customer.contact_name} - ${customer.company_name}`;
@@ -76,12 +97,52 @@ function renderConversations() {
     vessel.textContent = vesselLabel(conversation.vessels, conversation.leads);
 
     const meta = document.createElement('small');
-    meta.textContent = `${statusLabels[conversation.status] || conversation.status} · ${conversation.channel} · ${formatDate(conversation.last_message_at || conversation.updated_at)}`;
+    meta.textContent = `${stageLabel(conversation.intake_stage)} · ${statusLabels[conversation.status] || conversation.status} · ${formatDate(conversation.last_message_at || conversation.updated_at)}`;
 
     card.append(title, vessel, meta);
     card.addEventListener('click', () => selectConversation(conversation.id));
     conversationList.append(card);
   }
+}
+
+function renderConversationDetails() {
+  const fields = {
+    customerName: document.querySelector('#detail-customer-name'),
+    location: document.querySelector('#detail-location'),
+    vessel: document.querySelector('#detail-vessel'),
+    problem: document.querySelector('#detail-problem'),
+    stage: document.querySelector('#detail-stage'),
+    appointment: document.querySelector('#detail-appointment'),
+  };
+
+  if (!selectedConversation) {
+    detailsContext.textContent = 'Select a conversation to see Natalie intake details.';
+    fields.customerName.textContent = '-';
+    fields.location.textContent = '-';
+    fields.vessel.textContent = '-';
+    fields.problem.textContent = '-';
+    fields.stage.textContent = '-';
+    fields.appointment.textContent = '-';
+    return;
+  }
+
+  const data = selectedConversation.intake_data || {};
+  const appointment = appointments.find((item) => item.conversation_id === selectedConversation.id);
+  const vessel = [
+    data.vessel_type,
+    data.manufacturer_model,
+  ].filter(Boolean).join(' · ') || vesselLabel(selectedConversation.vessels, selectedConversation.leads);
+
+  detailsContext.textContent = customerLabel(selectedConversation.customers, selectedConversation.leads);
+  fields.customerName.textContent = data.customer_name || selectedConversation.customers?.contact_name || selectedConversation.leads?.full_name || '-';
+  fields.location.textContent = data.location || selectedConversation.vessels?.location || '-';
+  fields.vessel.textContent = vessel || '-';
+  fields.problem.textContent = data.problem_description || appointment?.problem_description || '-';
+  fields.stage.textContent = stageLabel(selectedConversation.intake_stage || selectedConversation.status);
+  fields.appointment.textContent = data.preferred_inspection_window
+    || appointment?.preferred_inspection_window
+    || appointment?.requested_time_text
+    || '-';
 }
 
 function renderMessages() {
@@ -133,7 +194,7 @@ function renderAppointments() {
   table.className = 'data-table';
   table.innerHTML = `
     <thead>
-      <tr><th>Customer</th><th>Requested</th><th>Location</th><th>Status</th><th>Created</th></tr>
+      <tr><th>Customer</th><th>Requested</th><th>Location</th><th>Problem</th><th>Status</th><th>Created</th></tr>
     </thead>
     <tbody></tbody>
   `;
@@ -153,6 +214,7 @@ function renderAppointments() {
       customer,
       appointment.requested_time_text || formatDate(appointment.requested_start_at),
       location,
+      appointment.problem_description || '-',
       appointment.status,
       formatDate(appointment.created_at),
     ];
@@ -169,6 +231,7 @@ function renderAppointments() {
 function renderAll() {
   renderMetrics();
   renderConversations();
+  renderConversationDetails();
   renderMessages();
   renderAppointments();
 }
@@ -246,8 +309,6 @@ async function loadAll() {
 
 document.querySelector('#new-conversation').addEventListener('click', () => {
   conversationForm.reset();
-  conversationForm.elements.channel.value = 'web';
-  conversationForm.elements.status.value = 'active';
   document.querySelector('#conversation-form-message').hidden = true;
   conversationEditor.hidden = false;
   conversationEditor.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -269,32 +330,19 @@ conversationForm.addEventListener('submit', async (event) => {
     return;
   }
 
-  const payload = {
-    lead_id: lead.id,
-    customer_id: lead.customer_id,
-    vessel_id: lead.vessel_id,
-    pipeline_id: lead.pipeline_id,
-    channel: conversationForm.elements.channel.value,
-    external_contact_id: lead.phone || lead.email,
-    status: conversationForm.elements.status.value,
-    qualification_state: 'started',
-    current_question_key: normalizeOptional(conversationForm.elements.currentQuestionKey.value),
-    assigned_to: profile.id,
-    qualification_summary: {
-      source: 'manual_admin_foundation',
-      lead_service_type: lead.service_type,
-    },
-  };
-
-  const { error } = await supabase.from('conversations').insert(payload);
-  if (error) {
-    setFormMessage(formMessage, 'Unable to create conversation.', true);
+  try {
+    const result = await invokeNatalieIntake({
+      action: 'start',
+      leadId: lead.id,
+    });
+    setFormMessage(formMessage, 'Natalie intake started.');
+    await loadAll();
+    selectConversation(result.conversationId);
+    window.setTimeout(() => { conversationEditor.hidden = true; }, 500);
+  } catch (error) {
+    setFormMessage(formMessage, error.message || 'Unable to start Natalie intake.', true);
     return;
   }
-
-  setFormMessage(formMessage, 'Conversation created.');
-  await loadAll();
-  window.setTimeout(() => { conversationEditor.hidden = true; }, 500);
 });
 
 messageForm.addEventListener('submit', async (event) => {
@@ -303,28 +351,23 @@ messageForm.addEventListener('submit', async (event) => {
   formMessage.hidden = true;
   if (!messageForm.reportValidity() || !selectedConversation) return;
 
-  const { error } = await supabase.from('messages').insert({
-    conversation_id: selectedConversation.id,
-    lead_id: selectedConversation.lead_id,
-    customer_id: selectedConversation.customer_id,
-    direction: messageForm.elements.direction.value,
-    sender_type: messageForm.elements.senderType.value,
-    channel: selectedConversation.channel,
-    body: messageForm.elements.body.value.trim(),
-    structured_payload: {},
-    delivery_status: messageForm.elements.direction.value === 'outbound' ? 'sent' : null,
-  });
-
-  if (error) {
-    setFormMessage(formMessage, 'Unable to save message.', true);
+  try {
+    const result = await invokeNatalieIntake({
+      action: 'answer',
+      conversationId: selectedConversation.id,
+      answer: messageForm.elements.body.value.trim(),
+    });
+    messageForm.reset();
+    setFormMessage(
+      formMessage,
+      result.completed ? 'Natalie intake completed and appointment request created.' : 'Answer saved. Natalie advanced to the next question.',
+    );
+    await loadAll();
+    selectConversation(result.conversationId);
+  } catch (error) {
+    setFormMessage(formMessage, error.message || 'Unable to save Natalie answer.', true);
     return;
   }
-
-  messageForm.reset();
-  messageForm.elements.senderType.value = 'staff';
-  messageForm.elements.direction.value = 'outbound';
-  setFormMessage(formMessage, 'Message saved.');
-  await loadAll();
 });
 
 appointmentForm.addEventListener('submit', async (event) => {

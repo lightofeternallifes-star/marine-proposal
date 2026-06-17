@@ -394,6 +394,11 @@ enabled = true
 verify_jwt = false
 entrypoint = "./functions/submit-lead/index.ts"
 
+[functions.natalie-intake]
+enabled = true
+verify_jwt = true
+entrypoint = "./functions/natalie-intake/index.ts"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
